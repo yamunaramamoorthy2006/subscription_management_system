@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brightloop | Login</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: #f8fafc;
+    color: #172554;
+}
+
+.login-page {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+/* BRAND PANEL */
+
+.brand-panel {
+    background: #172554;
+    color: white;
+    padding: 55px 65px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 25px;
+    font-weight: 750;
+}
+
+.brand-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #3b82f6;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.brand-content {
+    max-width: 520px;
+}
+
+.eyebrow {
+    color: #60a5fa;
+    font-size: 12px;
+    font-weight: 750;
+    letter-spacing: 2px;
+    margin-bottom: 18px;
+}
+
+.brand-content h1 {
+    font-size: clamp(32px, 4vw, 48px);
+    line-height: 1.2;
+    margin-bottom: 22px;
+}
+
+.brand-description {
+    color: #cbd5e1;
+    line-height: 1.8;
+    font-size: 16px;
+}
+
+.brand-footer {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+/* LOGIN PANEL */
+
+.form-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 25px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 430px;
+    background: white;
+    padding: 42px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(15,23,42,0.06);
+}
+
+.mobile-brand {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 750;
+    margin-bottom: 35px;
+}
+
+.welcome {
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 750;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.heading {
+    margin-bottom: 30px;
+}
+
+.heading h2 {
+    font-size: 27px;
+    margin-bottom: 10px;
+}
+
+.heading p:last-child {
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* FORM */
+
+.form-group {
+    margin-bottom: 23px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 650;
+    margin-bottom: 9px;
+    color: #334155;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    height: 48px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 0 14px;
+    outline: none;
+    background: white;
+    color: #172554;
+    font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+
+.form-group input::placeholder {
+    color: #94a3b8;
+}
+
+.label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.label-row a,
+.register-link a {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.label-row a:hover,
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 65px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #2563eb;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+/* LOGIN BUTTON */
+
+.login-button {
+    width: 100%;
+    height: 49px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.login-button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.login-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* MESSAGES */
+
+.message {
+    display: none;
+    padding: 11px 13px;
+    border-radius: 7px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.message.error {
+    display: block;
+    color: #b91c1c;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+}
+
+.message.success {
+    display: block;
+    color: #166534;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 27px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.security-note {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 850px) {
+    .login-page {
+        grid-template-columns: 1fr;
+    }
+
+    .brand-panel {
+        display: none;
+    }
+
+    .form-panel {
+        min-height: 100vh;
+    }
+
+    .mobile-brand {
+        display: flex;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-panel {
+        padding: 20px 14px;
+    }
+
+    .login-card {
+        padding: 28px 21px;
+    }
+
+    .heading h2 {
+        font-size: 23px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<main class="login-page">
+
+    <!-- LEFT BRAND SECTION -->
+    <section class="brand-panel">
+
+        <div class="brand">
+            <div class="brand-icon">B</div>
+            <span>Brightloop</span>
+        </div>
+
+        <div class="brand-content">
+            <p class="eyebrow">SUBSCRIPTION MANAGEMENT</p>
+
+            <h1>
+                Manage your business subscriptions with confidence.
+            </h1>
+
+            <p class="brand-description">
+                One platform to manage customers, plans, subscriptions,
+                recurring invoices and payments.
+            </p>
+        </div>
+
+        <p class="brand-footer">
+            © 2026 Brightloop Software
+        </p>
+
+    </section>
+
+    <!-- RIGHT LOGIN SECTION -->
+    <section class="form-panel">
+
+        <div class="login-card">
+
+            <div class="mobile-brand">
+                <div class="brand-icon">B</div>
+                <span>Brightloop</span>
+            </div>
+
+            <div class="heading">
+                <p class="welcome">WELCOME BACK</p>
+                <h2>Sign in to your account</h2>
+                <p>Enter your details to continue.</p>
+            </div>
+
+            <form id="loginForm">
+
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="name@company.com"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+
+                    <div class="label-row">
+                        <label for="password">Password</label>
+                        <a href="forgot-password.html">
+                            Forgot password?
+                        </a>
+                    </div>
+
+                    <div class="password-wrapper">
+                        <input
+                            type="password"
+                            id="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            id="togglePassword"
+                            class="toggle-password"
+                        >
+                            Show
+                        </button>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Login as</label>
+
+                    <select id="role" required>
+                        <option value="">Select your role</option>
+                        <option value="admin">Admin</option>
+                        <option value="staff">Staff</option>
+                        <option value="customer">Customer</option>
+                    </select>
+                </div>
+
+                <div id="message" class="message" role="alert"></div>
+
+                <button
+                    type="submit"
+                    id="loginButton"
+                    class="login-button"
+                >
+                    Sign In
+                </button>
+
+            </form>
+
+            <div class="register-link">
+                New to Brightloop?
+                <a href="register.html">Create a customer account</a>
+            </div>
+
+            <p class="security-note">
+                Secure access to your Brightloop account.
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script>
+
+// BACKEND URL
+const API_BASE_URL = "http://localhost:5000";
+
+const loginForm = document.getElementById("loginForm");
+const passwordInput = document.getElementById("password");
+const togglePassword = document.getElementById("togglePassword");
+const loginButton = document.getElementById("loginButton");
+const message = document.getElementById("message");
+
+// SHOW / HIDE PASSWORD
+togglePassword.addEventListener("click", () => {
+
+    const isPassword = passwordInput.type === "password";
+
+    passwordInput.type = isPassword ? "text" : "password";
+    togglePassword.textContent = isPassword ? "Hide" : "Show";
+
+});
+
+// DISPLAY MESSAGE
+function showMessage(text, type) {
+
+    message.textContent = text;
+    message.className = "message " + type;
+
+}
+
+// LOGIN FUNCTION
+loginForm.addEventListener("submit", async (event) => {
+
+    event.preventDefault();
+
+    message.className = "message";
+    message.textContent = "";
+
+    const email = document.getElementById("email").value.trim();
+    const password = passwordInput.value;
+    const role = document.getElementById("role").value;
+
+    if (!email || !password || !role) {
+
+        showMessage("Please complete all fields.", "error");
+        return;
+
+    }
+
+    loginButton.disabled = true;
+    loginButton.textContent = "Signing in...";
+
+    try {
+
+        const response = await fetch(
+            `${API_BASE_URL}/api/auth/login`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                credentials: "include",
+
+                body: JSON.stringify({
+                    email,
+                    password,
+                    role
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                result.message || "Invalid credentials or role."
+            );
+        }
+
+        const actualRole = result.user?.role?.toLowerCase();
+
+        if (!actualRole || actualRole !== role) {
+            throw new Error("The server returned an invalid role.");
+        }
+
+        const dashboards = {
+            admin: "../admin/dashboard.html",
+            staff: "../staff/dashboard.html",
+            customer: "../customer/dashboard.html"
+        };
+
+        if (!dashboards[actualRole]) {
+            throw new Error("Invalid account role.");
+        }
+
+        showMessage("Login successful! Redirecting...", "success");
+
+        window.location.href = dashboards[actualRole];
+
+    } catch (error) {
+
+        showMessage(
+            error.message || "Unable to connect to the server.",
+            "error"
+        );
+
+    } finally {
+
+        loginButton.disabled = false;
+        loginButton.textContent = "Sign In";
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
