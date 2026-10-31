@@ -1,0 +1,459 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brightloop | Billing & Finance</title>
+<style>
+:root{--navy:#14213d;--blue:#315efb;--bg:#f4f6fb;--text:#202b42;--muted:#778198;--border:#e6eaf2;--green:#16845b;--red:#d94b55;--orange:#d88920}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+.app{display:flex;min-height:100vh}
+.sidebar{width:235px;background:var(--navy);color:white;padding:25px 17px;flex-shrink:0}
+.brand{font-size:21px;font-weight:800;margin:0 0 8px}
+.brand span{color:#7da0ff}
+.subbrand{font-size:11px;color:#aebbd2;margin-bottom:35px}
+.nav-label{font-size:10px;color:#91a0bd;letter-spacing:1.4px;margin:24px 10px 10px}
+.nav button{width:100%;text-align:left;padding:12px 13px;border:0;border-radius:8px;background:transparent;color:#d7deec;cursor:pointer;margin:3px 0;font-size:13px}
+.nav button.active,.nav button:hover{background:#263b62;color:white}
+.side-note{margin-top:45px;padding:13px;background:#20365d;border-radius:9px;color:#bfcbe0;font-size:11px;line-height:1.6}
+main{flex:1;min-width:0;padding:30px 34px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:25px}
+h1{font-size:25px;margin:0 0 7px}
+.subtitle{color:var(--muted);font-size:13px}
+.top-right{display:flex;align-items:center;gap:10px}
+.user{background:white;border:1px solid var(--border);border-radius:9px;padding:10px 13px;font-size:12px}
+.btn{border:0;border-radius:7px;padding:10px 14px;background:var(--blue);color:white;cursor:pointer;font-weight:600;font-size:12px}
+.btn:hover{filter:brightness(.94)}
+.btn.secondary{background:#edf1ff;color:#315efb}
+.btn.danger{background:#fff0f0;color:var(--red)}
+.btn.success{background:#e8f7ef;color:var(--green)}
+.btn.dark{background:var(--navy)}
+.btn.small{padding:7px 9px;font-size:11px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:22px}
+.stat,.panel{background:white;border:1px solid var(--border);border-radius:12px;padding:18px}
+.stat-label{font-size:12px;color:var(--muted)}
+.stat-value{font-size:24px;font-weight:750;margin:12px 0 5px}
+.stat-foot{font-size:11px;color:var(--muted)}
+.stat-icon{float:right;width:33px;height:33px;border-radius:9px;background:#edf1ff;color:var(--blue);display:grid;place-items:center;font-weight:bold}
+.panel{margin-bottom:18px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+.panel h2{font-size:15px;margin:0}
+.panel-desc{font-size:11px;color:var(--muted);margin-top:5px}
+.tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);margin-bottom:17px;flex-wrap:wrap}
+.tab{padding:10px 13px;border:0;background:none;color:var(--muted);cursor:pointer;font-size:12px;border-bottom:2px solid transparent}
+.tab.active{color:var(--blue);border-color:var(--blue);font-weight:bold}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+input,select,textarea{width:100%;padding:10px 11px;border:1px solid #dfe4ed;border-radius:7px;font-size:12px;background:white;color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue)}
+.toolbar input{max-width:270px}
+.toolbar select{max-width:170px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th{text-align:left;color:var(--muted);font-size:10px;letter-spacing:.5px;font-weight:700;background:#fafbfe}
+th,td{padding:13px 11px;border-bottom:1px solid #edf0f5;font-size:12px}
+td{vertical-align:middle}
+td strong{font-size:12px}
+.muted{color:var(--muted);font-size:11px;margin-top:4px}
+.status{display:inline-block;border-radius:20px;padding:5px 9px;font-size:10px;font-weight:bold;background:#edf1ff;color:#315efb}
+.status.Paid{background:#e8f7ef;color:var(--green)}
+.status.Overdue{background:#fff0f0;color:var(--red)}
+.status.Partial{background:#fff5e7;color:var(--orange)}
+.status.Cancelled{background:#f0f1f4;color:#737b8c}
+.status.Draft{background:#edf1ff;color:#315efb}
+.actions{display:flex;gap:5px;flex-wrap:wrap}
+.empty{text-align:center;padding:35px;color:var(--muted);font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:11px;font-weight:700;margin-bottom:6px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 13px}
+.full{grid-column:1/-1}
+.total-box{background:#f6f8ff;border-radius:9px;padding:14px;margin:12px 0}
+.total-row{display:flex;justify-content:space-between;padding:6px 0;font-size:12px}
+.total-row.grand{border-top:1px solid #dfe5f2;margin-top:7px;padding-top:12px;font-weight:bold;font-size:15px}
+.modal{position:fixed;inset:0;background:#101a2b99;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}
+.modal.show{display:flex}
+.modal-box{background:white;border-radius:13px;padding:23px;width:min(620px,100%);max-height:90vh;overflow:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-head h2{font-size:17px;margin:0}
+.close{border:0;background:#f0f2f7;border-radius:7px;padding:7px 10px;cursor:pointer}
+.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.bar-row{margin:16px 0}
+.bar-label{display:flex;justify-content:space-between;font-size:11px;margin-bottom:7px}
+.bar-bg{height:9px;background:#edf0f6;border-radius:10px;overflow:hidden}
+.bar-fill{height:100%;background:var(--blue);border-radius:10px}
+.notice{padding:12px;background:#f0f4ff;border-radius:8px;color:#40557f;font-size:11px;line-height:1.5;margin-bottom:15px}
+@media(max-width:950px){.stats{grid-template-columns:repeat(2,1fr)}.sidebar{width:190px}main{padding:22px}}
+@media(max-width:650px){.app{display:block}.sidebar{width:100%;padding:15px}.subbrand,.side-note,.nav-label{display:none}.nav{display:flex;overflow:auto;gap:5px}.nav button{white-space:nowrap;width:auto}.top{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr 1fr}.grid2,.report-grid{grid-template-columns:1fr}main{padding:17px}}
+@media print{.sidebar,.top,.tabs,.toolbar,.actions,.no-print{display:none!important}main{padding:0}.panel,.stat{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">bright<span>loop</span></div>
+  <div class="subbrand">SUBSCRIPTION MANAGEMENT</div>
+  <div class="nav-label">FINANCE WORKSPACE</div>
+  <div class="nav">
+    <button class="active" data-page="dashboard">▦ Dashboard</button>
+    <button data-page="invoices">▤ Invoices</button>
+    <button data-page="payments">↗ Payments</button>
+    <button data-page="reports">▥ Revenue Reports</button>
+  </div>
+  <div class="side-note">Billing & Finance<br>Manage invoices, payment records, outstanding balances and revenue.</div>
+</aside>
+
+<main>
+  <div class="top">
+    <div>
+      <h1 id="pageTitle">Finance Dashboard</h1>
+      <div class="subtitle">Monitor billing activity and subscription revenue.</div>
+    </div>
+    <div class="top-right">
+      <div class="user">Finance Administrator</div>
+      <button class="btn" onclick="openInvoiceModal()">+ Create Invoice</button>
+    </div>
+  </div>
+
+  <section id="dashboardPage">
+    <div class="stats">
+      <div class="stat"><span class="stat-icon">₹</span><div class="stat-label">Total Invoiced</div><div class="stat-value" id="totalInvoiced">₹0</div><div class="stat-foot">All non-cancelled invoices</div></div>
+      <div class="stat"><span class="stat-icon">✓</span><div class="stat-label">Amount Collected</div><div class="stat-value" id="totalCollected">₹0</div><div class="stat-foot">Payments received</div></div>
+      <div class="stat"><span class="stat-icon">⌛</span><div class="stat-label">Outstanding</div><div class="stat-value" id="totalOutstanding">₹0</div><div class="stat-foot">Balance yet to be paid</div></div>
+      <div class="stat"><span class="stat-icon">!</span><div class="stat-label">Overdue Amount</div><div class="stat-value" id="totalOverdue">₹0</div><div class="stat-foot">Past due date and unpaid</div></div>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="panel-head"><div><h2>Recent Invoices</h2><div class="panel-desc">Latest billing records</div></div><button class="btn secondary small" onclick="showPage('invoices')">View all</button></div>
+        <div class="table-wrap"><table><thead><tr><th>INVOICE</th><th>CUSTOMER</th><th>AMOUNT</th><th>STATUS</th></tr></thead><tbody id="recentInvoices"></tbody></table></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><h2>Payment Overview</h2><div class="panel-desc">Collected vs outstanding</div></div></div>
+        <div class="bar-row"><div class="bar-label"><span>Collected</span><strong id="collectedLabel">₹0</strong></div><div class="bar-bg"><div class="bar-fill" id="collectedBar"></div></div></div>
+        <div class="bar-row"><div class="bar-label"><span>Outstanding</span><strong id="outstandingLabel">₹0</strong></div><div class="bar-bg"><div class="bar-fill" id="outstandingBar"></div></div></div>
+        <div class="notice">Outstanding is calculated from invoice totals minus payments recorded against those invoices.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="invoicesPage" hidden>
+    <div class="panel">
+      <div class="panel-head"><div><h2>Invoice Management</h2><div class="panel-desc">Create invoices, track balances and manage invoice status.</div></div><button class="btn" onclick="openInvoiceModal()">+ New Invoice</button></div>
+      <div class="tabs">
+        <button class="tab active" data-filter="All">All Invoices</button>
+        <button class="tab" data-filter="Unpaid">Unpaid</button>
+        <button class="tab" data-filter="Paid">Paid</button>
+        <button class="tab" data-filter="Overdue">Overdue</button>
+        <button class="tab" data-filter="Cancelled">Cancelled</button>
+      </div>
+      <div class="toolbar"><input id="invoiceSearch" placeholder="Search invoice or customer..." oninput="renderInvoices()"><select id="invoiceSort" onchange="renderInvoices()"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="amount">Highest amount</option></select></div>
+      <div class="table-wrap"><table><thead><tr><th>INVOICE NO.</th><th>CUSTOMER</th><th>INVOICE DATE</th><th>DUE DATE</th><th>TOTAL</th><th>PAID</th><th>BALANCE</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="invoiceRows"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="paymentsPage" hidden>
+    <div class="panel">
+      <div class="panel-head"><div><h2>Payment Records</h2><div class="panel-desc">Record and match customer payments to invoices.</div></div><button class="btn" onclick="openPaymentModal()">+ Record Payment</button></div>
+      <div class="toolbar"><input id="paymentSearch" placeholder="Search payment, invoice or customer..." oninput="renderPayments()"></div>
+      <div class="table-wrap"><table><thead><tr><th>PAYMENT ID</th><th>INVOICE</th><th>CUSTOMER</th><th>DATE</th><th>METHOD</th><th>REFERENCE</th><th>AMOUNT</th></tr></thead><tbody id="paymentRows"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="reportsPage" hidden>
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Invoices Created</div><div class="stat-value" id="reportCount">0</div></div>
+      <div class="stat"><div class="stat-label">Payments Received</div><div class="stat-value" id="reportPayments">0</div></div>
+      <div class="stat"><div class="stat-label">Average Invoice</div><div class="stat-value" id="reportAverage">₹0</div></div>
+      <div class="stat"><div class="stat-label">Overdue Invoices</div><div class="stat-value" id="reportOverdue">0</div></div>
+    </div>
+    <div class="report-grid">
+      <div class="panel"><h2>Revenue Summary</h2><div class="panel-desc">Financial totals across all invoice records.</div><div id="revenueSummary"></div></div>
+      <div class="panel"><h2>Invoice Status Breakdown</h2><div class="panel-desc">Number of invoices by current status.</div><div id="statusSummary"></div></div>
+    </div>
+    <div class="panel"><div class="panel-head"><div><h2>Export Report</h2><div class="panel-desc">Download invoice and payment records as CSV.</div></div><button class="btn" onclick="exportCSV()">Export CSV</button></div></div>
+  </section>
+</main>
+</div>
+
+<!-- Invoice modal -->
+<div class="modal" id="invoiceModal">
+<div class="modal-box">
+  <div class="modal-head"><h2>Create Invoice</h2><button class="close" onclick="closeModal('invoiceModal')">✕</button></div>
+  <div class="notice">You can create an invoice manually or load subscription details from Member 3's sales module, if it is available in this browser.</div>
+  <form id="invoiceForm">
+    <div class="form-grid">
+      <div class="field full"><label>Import from Subscription (optional)</label><select id="subscriptionSelect"><option value="">Manual invoice</option></select></div>
+      <div class="field"><label>Customer Name *</label><input id="customerName" required placeholder="Customer name"></div>
+      <div class="field"><label>Customer Email</label><input id="customerEmail" type="email" placeholder="customer@email.com"></div>
+      <div class="field"><label>Invoice Date *</label><input id="invoiceDate" type="date" required></div>
+      <div class="field"><label>Due Date *</label><input id="dueDate" type="date" required></div>
+      <div class="field full"><label>Description *</label><input id="description" required placeholder="Subscription / service description"></div>
+      <div class="field"><label>Quantity *</label><input id="quantity" type="number" min="1" value="1" required></div>
+      <div class="field"><label>Unit Price (₹) *</label><input id="unitPrice" type="number" min="0" step=".01" required></div>
+      <div class="field"><label>Tax (%)</label><input id="taxRate" type="number" min="0" max="100" value="0"></div>
+      <div class="field"><label>Discount (₹)</label><input id="discount" type="number" min="0" value="0"></div>
+    </div>
+    <div class="total-box">
+      <div class="total-row"><span>Subtotal</span><strong id="previewSubtotal">₹0.00</strong></div>
+      <div class="total-row"><span>Tax</span><strong id="previewTax">₹0.00</strong></div>
+      <div class="total-row"><span>Discount</span><strong id="previewDiscount">₹0.00</strong></div>
+      <div class="total-row grand"><span>Invoice Total</span><strong id="previewTotal">₹0.00</strong></div>
+    </div>
+    <button class="btn" type="submit">Create Invoice</button>
+    <button class="btn secondary" type="button" onclick="closeModal('invoiceModal')">Cancel</button>
+  </form>
+</div>
+</div>
+
+<!-- Payment modal -->
+<div class="modal" id="paymentModal">
+<div class="modal-box">
+  <div class="modal-head"><h2>Record Payment</h2><button class="close" onclick="closeModal('paymentModal')">✕</button></div>
+  <form id="paymentForm">
+    <div class="field"><label>Select Invoice *</label><select id="paymentInvoice" required></select></div>
+    <div class="form-grid">
+      <div class="field"><label>Payment Date *</label><input id="paymentDate" type="date" required></div>
+      <div class="field"><label>Amount (₹) *</label><input id="paymentAmount" type="number" min=".01" step=".01" required></div>
+      <div class="field"><label>Payment Method *</label><select id="paymentMethod" required><option value="UPI">UPI</option><option value="Bank Transfer">Bank Transfer</option><option value="Card">Card</option><option value="Cash">Cash</option><option value="Other">Other</option></select></div>
+      <div class="field"><label>Transaction Reference</label><input id="paymentReference" placeholder="Transaction ID"></div>
+    </div>
+    <div class="notice" id="paymentBalance">Choose an invoice to see its outstanding balance.</div>
+    <button class="btn" type="submit">Save Payment</button>
+    <button class="btn secondary" type="button" onclick="closeModal('paymentModal')">Cancel</button>
+  </form>
+</div>
+</div>
+
+<script>
+const STORAGE_KEY = "brightloop_billing_v1";
+const SALES_KEY = "brightloop_sales_v1";
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"invoices":[],"payments":[]}');
+let invoiceFilter = "All";
+
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}
+function money(n){return "₹"+Number(n||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function today(){return new Date().toISOString().slice(0,10)}
+function escapeHTML(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function makeId(prefix){return prefix+"-"+Date.now().toString().slice(-8)}
+function getPayments(invId){return data.payments.filter(p=>p.invoiceId===invId).reduce((s,p)=>s+Number(p.amount),0)}
+function balance(inv){return Math.max(0,Number(inv.total)-getPayments(inv.id))}
+function status(inv){
+  if(inv.cancelled)return "Cancelled";
+  const paid=getPayments(inv.id);
+  if(paid>=Number(inv.total)-0.001)return "Paid";
+  if(paid>0)return "Partial";
+  if(inv.dueDate<today())return "Overdue";
+  return inv.status||"Unpaid";
+}
+function activeInvoices(){return data.invoices.filter(i=>!i.cancelled)}
+function totals(){
+  const list=activeInvoices();
+  return {
+    invoiced:list.reduce((s,i)=>s+Number(i.total),0),
+    collected:list.reduce((s,i)=>s+getPayments(i.id),0),
+    outstanding:list.reduce((s,i)=>s+balance(i),0),
+    overdue:list.filter(i=>status(i)==="Overdue").reduce((s,i)=>s+balance(i),0)
+  };
+}
+function updateAll(){
+  save();renderDashboard();renderInvoices();renderPayments();renderReports();loadSubscriptions();
+}
+function showPage(page){
+  ["dashboard","invoices","payments","reports"].forEach(p=>{
+    document.getElementById(p+"Page").hidden=p!==page;
+    document.querySelector('[data-page="'+p+'"]').classList.toggle("active",p===page);
+  });
+  const names={dashboard:"Finance Dashboard",invoices:"Invoice Management",payments:"Payment Records",reports:"Revenue Reports"};
+  document.getElementById("pageTitle").textContent=names[page];
+}
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+document.querySelectorAll("[data-filter]").forEach(b=>b.addEventListener("click",()=>{
+  invoiceFilter=b.dataset.filter;
+  document.querySelectorAll("[data-filter]").forEach(x=>x.classList.toggle("active",x===b));
+  renderInvoices();
+}));
+function renderDashboard(){
+  const t=totals();
+  document.getElementById("totalInvoiced").textContent=money(t.invoiced);
+  document.getElementById("totalCollected").textContent=money(t.collected);
+  document.getElementById("totalOutstanding").textContent=money(t.outstanding);
+  document.getElementById("totalOverdue").textContent=money(t.overdue);
+  document.getElementById("collectedLabel").textContent=money(t.collected);
+  document.getElementById("outstandingLabel").textContent=money(t.outstanding);
+  const max=t.invoiced||1;
+  document.getElementById("collectedBar").style.width=(t.collected/max*100)+"%";
+  document.getElementById("outstandingBar").style.width=(t.outstanding/max*100)+"%";
+  const recent=[...data.invoices].sort((a,b)=>b.createdAt-a.createdAt).slice(0,5);
+  document.getElementById("recentInvoices").innerHTML=recent.length?recent.map(i=>`<tr><td><strong>${escapeHTML(i.number)}</strong></td><td>${escapeHTML(i.customer)}</td><td>${money(i.total)}</td><td><span class="status ${status(i)}">${status(i)}</span></td></tr>`).join(""):`<tr><td colspan="4" class="empty">No invoices created yet.</td></tr>`;
+}
+function renderInvoices(){
+  let list=[...data.invoices];
+  const q=(document.getElementById("invoiceSearch")?.value||"").toLowerCase();
+  const sort=document.getElementById("invoiceSort")?.value||"new";
+  if(q)list=list.filter(i=>(i.number+" "+i.customer+" "+i.email).toLowerCase().includes(q));
+  if(invoiceFilter==="Unpaid")list=list.filter(i=>["Unpaid","Partial"].includes(status(i)));
+  else if(invoiceFilter!=="All")list=list.filter(i=>status(i)===invoiceFilter);
+  if(sort==="old")list.sort((a,b)=>a.createdAt-b.createdAt);
+  else if(sort==="amount")list.sort((a,b)=>b.total-a.total);
+  else list.sort((a,b)=>b.createdAt-a.createdAt);
+  document.getElementById("invoiceRows").innerHTML=list.length?list.map(i=>`
+    <tr>
+      <td><strong>${escapeHTML(i.number)}</strong><div class="muted">${escapeHTML(i.description)}</div></td>
+      <td>${escapeHTML(i.customer)}<div class="muted">${escapeHTML(i.email||"")}</div></td>
+      <td>${escapeHTML(i.invoiceDate)}</td><td>${escapeHTML(i.dueDate)}</td>
+      <td>${money(i.total)}</td><td>${money(getPayments(i.id))}</td><td><strong>${money(balance(i))}</strong></td>
+      <td><span class="status ${status(i)}">${status(i)}</span></td>
+      <td><div class="actions">
+        <button class="btn secondary small" onclick="printInvoice('${i.id}')">Print</button>
+        ${!i.cancelled&&balance(i)>0?`<button class="btn small" onclick="quickPayment('${i.id}')">Pay</button>`:""}
+        ${!i.cancelled&&getPayments(i.id)===0?`<button class="btn danger small" onclick="cancelInvoice('${i.id}')">Cancel</button>`:""}
+      </div></td>
+    </tr>`).join(""):`<tr><td colspan="9" class="empty">No matching invoices found.</td></tr>`;
+}
+function renderPayments(){
+  const q=(document.getElementById("paymentSearch")?.value||"").toLowerCase();
+  const list=[...data.payments].filter(p=>{
+    const inv=data.invoices.find(i=>i.id===p.invoiceId);
+    return (p.id+" "+p.invoiceNumber+" "+(inv?.customer||"")).toLowerCase().includes(q);
+  }).sort((a,b)=>b.createdAt-a.createdAt);
+  document.getElementById("paymentRows").innerHTML=list.length?list.map(p=>{
+    const inv=data.invoices.find(i=>i.id===p.invoiceId);
+    return `<tr><td><strong>${escapeHTML(p.id)}</strong></td><td>${escapeHTML(p.invoiceNumber)}</td><td>${escapeHTML(inv?.customer||"Unknown")}</td><td>${escapeHTML(p.date)}</td><td>${escapeHTML(p.method)}</td><td>${escapeHTML(p.reference||"—")}</td><td><strong>${money(p.amount)}</strong></td></tr>`;
+  }).join(""):`<tr><td colspan="7" class="empty">No payments recorded yet.</td></tr>`;
+}
+function renderReports(){
+  const t=totals(),list=activeInvoices(),paid=list.filter(i=>status(i)==="Paid").length,over=list.filter(i=>status(i)==="Overdue").length;
+  document.getElementById("reportCount").textContent=list.length;
+  document.getElementById("reportPayments").textContent=data.payments.length;
+  document.getElementById("reportAverage").textContent=money(list.length?t.invoiced/list.length:0);
+  document.getElementById("reportOverdue").textContent=over;
+  document.getElementById("revenueSummary").innerHTML=[
+    ["Total invoiced",t.invoiced],["Total collected",t.collected],["Outstanding balance",t.outstanding],["Overdue balance",t.overdue]
+  ].map(x=>`<div class="total-row"><span>${x[0]}</span><strong>${money(x[1])}</strong></div>`).join("");
+  const counts={Paid:paid,Partial:list.filter(i=>status(i)==="Partial").length,Unpaid:list.filter(i=>status(i)==="Unpaid").length,Overdue:over,Cancelled:data.invoices.filter(i=>i.cancelled).length};
+  const max=Math.max(1,...Object.values(counts));
+  document.getElementById("statusSummary").innerHTML=Object.entries(counts).map(([k,v])=>`<div class="bar-row"><div class="bar-label"><span>${k}</span><strong>${v}</strong></div><div class="bar-bg"><div class="bar-fill" style="width:${v/max*100}%"></div></div></div>`).join("");
+}
+function openModal(id){document.getElementById(id).classList.add("show")}
+function closeModal(id){document.getElementById(id).classList.remove("show")}
+function openInvoiceModal(){
+  document.getElementById("invoiceForm").reset();
+  document.getElementById("invoiceDate").value=today();
+  document.getElementById("dueDate").value=today();
+  loadSubscriptions();updatePreview();openModal("invoiceModal");
+}
+["quantity","unitPrice","taxRate","discount"].forEach(id=>document.getElementById(id).addEventListener("input",updatePreview));
+function calc(){
+  const sub=Number(quantity.value||0)*Number(unitPrice.value||0);
+  const tax=sub*Number(taxRate.value||0)/100;
+  const disc=Number(discount.value||0);
+  return {sub,tax,disc,total:Math.max(0,sub+tax-disc)};
+}
+function updatePreview(){
+  const c=calc();
+  previewSubtotal.textContent=money(c.sub);previewTax.textContent=money(c.tax);
+  previewDiscount.textContent=money(c.disc);previewTotal.textContent=money(c.total);
+}
+function loadSubscriptions(){
+  const select=document.getElementById("subscriptionSelect");
+  const old=select.value;
+  let sales;
+  try{sales=JSON.parse(localStorage.getItem(SALES_KEY)||'{"subscriptions":[]}')}catch(e){sales={subscriptions:[]}}
+  const subs=(sales.subscriptions||[]).filter(s=>["Active","Confirmed"].includes(s.status));
+  select.innerHTML='<option value="">Manual invoice</option>'+subs.map(s=>`<option value="${escapeHTML(s.id)}">${escapeHTML(s.number||s.id)} — ${escapeHTML(s.customerName||"Customer")}</option>`).join("");
+  if(subs.some(s=>s.id===old))select.value=old;
+}
+document.getElementById("subscriptionSelect").addEventListener("change",e=>{
+  const sales=JSON.parse(localStorage.getItem(SALES_KEY)||'{"subscriptions":[]}');
+  const s=(sales.subscriptions||[]).find(x=>x.id===e.target.value);
+  if(!s)return;
+  customerName.value=s.customerName||"";
+  customerEmail.value=s.customerEmail||"";
+  description.value=(s.lines||[]).map(l=>l.productName+" ("+l.planName+")").join(", ")||"Subscription";
+  quantity.value=1;
+  unitPrice.value=Number(s.amount||0);
+  taxRate.value=0;discount.value=0;
+  updatePreview();
+});
+document.getElementById("invoiceForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const subId=subscriptionSelect.value;
+  const invoiceDate=document.getElementById("invoiceDate").value;
+  const due=document.getElementById("dueDate").value;
+  if(due<invoiceDate){alert("Due date cannot be earlier than invoice date.");return}
+  if(subId){
+    const duplicate=data.invoices.some(i=>i.subscriptionId===subId&&i.invoiceDate===invoiceDate&&!i.cancelled);
+    if(duplicate){alert("An invoice for this subscription and invoice date already exists.");return}
+  }
+  const c=calc();
+  if(c.total<=0){alert("Invoice total must be greater than zero.");return}
+  const number="INV-"+new Date().getFullYear()+"-"+String(Date.now()).slice(-6);
+  data.invoices.push({
+    id:makeId("INV"),number,subscriptionId:subId||null,
+    customer:customerName.value.trim(),email:customerEmail.value.trim(),
+    invoiceDate,dueDate:due,description:description.value.trim(),
+    quantity:Number(quantity.value),unitPrice:Number(unitPrice.value),
+    subtotal:c.sub,tax:c.tax,taxRate:Number(taxRate.value),
+    discount:c.disc,total:c.total,status:"Unpaid",cancelled:false,createdAt:Date.now()
+  });
+  updateAll();closeModal("invoiceModal");showPage("invoices");
+});
+function openPaymentModal(invoiceId=""){
+  const select=document.getElementById("paymentInvoice");
+  const list=activeInvoices().filter(i=>balance(i)>0);
+  select.innerHTML=list.map(i=>`<option value="${i.id}">${escapeHTML(i.number)} — ${escapeHTML(i.customer)} — Balance ${money(balance(i))}</option>`).join("");
+  if(!list.length){alert("There are no invoices with an outstanding balance.");return}
+  if(invoiceId)select.value=invoiceId;
+  document.getElementById("paymentForm").reset();
+  if(invoiceId)select.value=invoiceId;
+  paymentDate.value=today();paymentAmount.value="";
+  updatePaymentBalance();openModal("paymentModal");
+}
+function quickPayment(id){openPaymentModal(id)}
+document.getElementById("paymentInvoice").addEventListener("change",updatePaymentBalance);
+function updatePaymentBalance(){
+  const inv=data.invoices.find(i=>i.id===paymentInvoice.value);
+  paymentBalance.textContent=inv?"Outstanding balance: "+money(balance(inv)):"Choose an invoice.";
+  paymentAmount.max=inv?balance(inv):"";
+}
+document.getElementById("paymentForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const inv=data.invoices.find(i=>i.id===paymentInvoice.value);
+  const amount=Number(paymentAmount.value);
+  if(!inv||inv.cancelled){alert("Please select a valid invoice.");return}
+  if(amount<=0||amount>balance(inv)+0.001){alert("Payment must be greater than zero and cannot exceed the outstanding balance.");return}
+  data.payments.push({
+    id:makeId("PAY"),invoiceId:inv.id,invoiceNumber:inv.number,
+    date:paymentDate.value,amount,method:paymentMethod.value,
+    reference:paymentReference.value.trim(),createdAt:Date.now()
+  });
+  updateAll();closeModal("paymentModal");showPage("payments");
+});
+function cancelInvoice(id){
+  const inv=data.invoices.find(i=>i.id===id);
+  if(!inv)return;
+  if(getPayments(id)>0){alert("This invoice has payments recorded. It cannot be cancelled in this demo.");return}
+  if(confirm("Cancel invoice "+inv.number+"?")){inv.cancelled=true;updateAll()}
+}
+function printInvoice(id){
+  const i=data.invoices.find(x=>x.id===id);if(!i)return;
+  const paid=getPayments(id);
+  const w=window.open("","_blank");
+  if(!w){alert("Allow pop-ups to print the invoice.");return}
+  w.document.write(`<!DOCTYPE html><html><head><title>${escapeHTML(i.number)}</title><style>body{font-family:Arial;padding:35px;color:#222}h1{color:#18315b}.row{display:flex;justify-content:space-between;margin:12px 0}.box{border:1px solid #ddd;padding:18px;margin-top:20px}.total{font-size:20px;font-weight:bold;border-top:1px solid #ddd;padding-top:15px}</style></head><body><h1>brightloop</h1><h2>INVOICE</h2><div class="row"><strong>${escapeHTML(i.number)}</strong><span>Status: ${status(i)}</span></div><div class="row"><span>Customer: ${escapeHTML(i.customer)}</span><span>Invoice date: ${escapeHTML(i.invoiceDate)}</span></div><div class="row"><span>${escapeHTML(i.email||"")}</span><span>Due date: ${escapeHTML(i.dueDate)}</span></div><div class="box"><p><b>Description:</b> ${escapeHTML(i.description)}</p><p>Quantity: ${i.quantity}</p><p>Unit price: ${money(i.unitPrice)}</p><p>Subtotal: ${money(i.subtotal)}</p><p>Tax (${i.taxRate}%): ${money(i.tax)}</p><p>Discount: ${money(i.discount)}</p><p class="total">Total: ${money(i.total)}</p><p>Paid: ${money(paid)}</p><p>Balance: ${money(balance(i))}</p></div><p>Thank you for your business.</p><script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.close();
+}
+function exportCSV(){
+  const rows=[["Invoice","Customer","Email","Invoice Date","Due Date","Total","Paid","Balance","Status"]];
+  data.invoices.forEach(i=>rows.push([i.number,i.customer,i.email,i.invoiceDate,i.dueDate,i.total,getPayments(i.id),balance(i),status(i)]));
+  rows.push([]);
+  rows.push(["Payment ID","Invoice","Date","Method","Reference","Amount"]);
+  data.payments.forEach(p=>rows.push([p.id,p.invoiceNumber,p.date,p.method,p.reference,p.amount]));
+  const csv=rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="brightloop-finance-report.csv";a.click();URL.revokeObjectURL(a.href);
+}
+updateAll();
+</script>
+</body>
+</html>
