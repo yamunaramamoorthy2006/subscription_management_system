@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brightloop | Product & Pricing Management</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,"Segoe UI",Arial,sans-serif}
+body{background:#f8fafc;color:#172554}
+button,input,select,textarea{font:inherit}
+.app{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:245px;background:#172554;color:white;padding:25px 17px;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;z-index:5}
+.logo{display:flex;align-items:center;gap:11px;font-size:22px;font-weight:750;padding:0 10px 35px}
+.logo-icon{background:#3b82f6;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:22px}
+.nav-label{font-size:10px;color:#94a3b8;letter-spacing:1.5px;padding:12px 12px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;color:#cbd5e1;text-decoration:none;font-size:14px;margin-bottom:5px;cursor:pointer;border:0;background:none;width:100%;text-align:left}
+.nav-item:hover,.nav-item.active{background:#263b70;color:white}
+.nav-icon{width:20px;text-align:center;font-size:17px}
+.sidebar-bottom{margin-top:auto;border-top:1px solid #334477;padding-top:17px}
+.profile{display:flex;align-items:center;gap:10px;padding:8px}
+.avatar{width:35px;height:35px;border-radius:50%;background:#3b82f6;display:grid;place-items:center;font-weight:700}
+.profile small{display:block;color:#94a3b8;margin-top:3px}
+
+/* MAIN */
+.main{margin-left:245px;width:calc(100% - 245px)}
+.topbar{height:75px;background:white;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;padding:0 35px}
+.breadcrumb{font-size:13px;color:#64748b}
+.top-actions{display:flex;align-items:center;gap:18px;font-size:14px}
+.content{padding:30px 35px;max-width:1500px;margin:auto}
+.page-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;gap:15px}
+.page-heading h1{font-size:25px;margin-bottom:7px}
+.page-heading p{font-size:13px;color:#64748b}
+.primary-btn,.secondary-btn,.danger-btn{border:0;border-radius:7px;padding:11px 16px;font-size:13px;font-weight:650;cursor:pointer}
+.primary-btn{background:#2563eb;color:white}
+.primary-btn:hover{background:#1d4ed8}
+.secondary-btn{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.danger-btn{background:#fef2f2;color:#b91c1c}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:17px;margin-bottom:25px}
+.stat-card{background:white;border:1px solid #e2e8f0;border-radius:11px;padding:20px}
+.stat-top{display:flex;justify-content:space-between;color:#64748b;font-size:12px}
+.stat-icon{width:34px;height:34px;background:#eff6ff;color:#2563eb;border-radius:8px;display:grid;place-items:center;font-size:18px}
+.stat-value{font-size:26px;font-weight:750;margin-top:13px}
+.stat-note{font-size:11px;color:#94a3b8;margin-top:5px}
+
+/* TABS */
+.tabs{display:flex;gap:8px;border-bottom:1px solid #e2e8f0;margin-bottom:20px;overflow-x:auto}
+.tab{background:none;border:0;padding:13px 17px;color:#64748b;font-weight:650;font-size:13px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent}
+.tab.active{color:#2563eb;border-bottom-color:#2563eb}
+.panel{display:none}
+.panel.active{display:block}
+.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px;gap:12px}
+.panel-header h2{font-size:17px}
+.panel-header p{font-size:12px;color:#64748b;margin-top:5px}
+
+/* TABLE */
+.table-card{background:white;border:1px solid #e2e8f0;border-radius:11px;overflow:hidden}
+.table-tools{padding:16px;display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #e2e8f0}
+.search{max-width:300px;width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:7px;outline:none;font-size:13px}
+.search:focus,input:focus,select:focus,textarea:focus{border-color:#2563eb;outline:none;box-shadow:0 0 0 3px #2563eb18}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;white-space:nowrap}
+th{text-align:left;background:#f8fafc;color:#64748b;font-size:11px;font-weight:700;padding:14px 17px}
+td{padding:15px 17px;border-top:1px solid #f1f5f9;font-size:12px;color:#334155}
+td strong{color:#172554}
+.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:10px;font-weight:700;background:#dcfce7;color:#166534}
+.status.inactive{background:#f1f5f9;color:#64748b}
+.status.expired{background:#fee2e2;color:#b91c1c}
+.actions{display:flex;gap:7px}
+.action-btn{border:0;background:#eff6ff;color:#2563eb;padding:6px 9px;border-radius:5px;cursor:pointer;font-size:11px}
+.action-btn.delete{background:#fef2f2;color:#b91c1c}
+.empty{text-align:center;padding:35px;color:#94a3b8}
+
+/* FORMS */
+.form-card{background:white;border:1px solid #e2e8f0;border-radius:11px;padding:22px;margin-bottom:20px}
+.form-card h3{font-size:15px;margin-bottom:18px}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.field label{display:block;font-size:12px;font-weight:650;color:#334155;margin-bottom:8px}
+.field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:7px;background:white;font-size:13px;color:#172554}
+.field textarea{min-height:75px;resize:vertical}
+.field.full{grid-column:1/-1}
+.form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.form-message{font-size:12px;margin-top:12px;color:#b91c1c}
+.hidden{display:none!important}
+.hint{font-size:11px;color:#94a3b8;margin-top:6px}
+.variant-preview{padding:11px;background:#eff6ff;border-radius:7px;color:#1d4ed8;font-size:12px;margin-top:12px}
+.toast{position:fixed;right:25px;bottom:25px;background:#172554;color:white;padding:14px 20px;border-radius:8px;display:none;z-index:20;font-size:13px;box-shadow:0 5px 20px #0002}
+.footer-note{color:#94a3b8;font-size:11px;margin-top:20px}
+
+/* RESPONSIVE */
+@media(max-width:1000px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){
+ .sidebar{width:65px;padding:20px 8px}
+ .logo{padding:0 5px 30px}
+ .logo span,.nav-label,.nav-item span:not(.nav-icon),.profile div:last-child{display:none}
+ .nav-item{justify-content:center;padding:13px 5px}
+ .profile{justify-content:center}
+ .main{margin-left:65px;width:calc(100% - 65px)}
+ .content{padding:22px 15px}
+ .topbar{padding:0 15px}
+ .stats{gap:10px}
+ .stat-card{padding:14px}
+ .stat-value{font-size:21px}
+ .form-grid{grid-template-columns:1fr}
+ .field.full{grid-column:auto}
+ .page-heading{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:420px){.stats{grid-template-columns:1fr 1fr}.top-actions{font-size:11px}}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="logo">
+        <div class="logo-icon">B</div>
+        <span>Brightloop</span>
+    </div>
+
+    <div class="nav-label">WORKSPACE</div>
+    <a class="nav-item" href="#"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">♙</span><span>Customers</span></a>
+    <a class="nav-item active" href="#"><span class="nav-icon">▣</span><span>Products & Pricing</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">▤</span><span>Quotations</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">⟳</span><span>Subscriptions</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">▧</span><span>Invoices</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">₹</span><span>Payments</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">▥</span><span>Reports</span></a>
+
+    <div class="sidebar-bottom">
+        <div class="profile">
+            <div class="avatar">A</div>
+            <div>Administrator<small>Admin account</small></div>
+        </div>
+    </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+<header class="topbar">
+    <div class="breadcrumb">Brightloop / Products & Pricing</div>
+    <div class="top-actions">
+        <span>🔔</span>
+        <strong>Administrator</strong>
+    </div>
+</header>
+
+<div class="content">
+
+    <div class="page-heading">
+        <div>
+            <h1>Products & Pricing</h1>
+            <p>Manage your products, subscription plans, taxes and discounts.</p>
+        </div>
+        <button class="primary-btn" onclick="openCurrentForm()">+ Add New</button>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <section class="stats">
+        <div class="stat-card">
+            <div class="stat-top">Total Products <span class="stat-icon">▣</span></div>
+            <div class="stat-value" id="productCount">0</div>
+            <div class="stat-note">Products in catalogue</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-top">Active Plans <span class="stat-icon">▤</span></div>
+            <div class="stat-value" id="planCount">0</div>
+            <div class="stat-note">Available subscription plans</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-top">Tax Rules <span class="stat-icon">%</span></div>
+            <div class="stat-value" id="taxCount">0</div>
+            <div class="stat-note">Configured tax rules</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-top">Discount Rules <span class="stat-icon">✦</span></div>
+            <div class="stat-value" id="discountCount">0</div>
+            <div class="stat-note">Configured discounts</div>
+        </div>
+    </section>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab active" data-tab="products">Products</button>
+        <button class="tab" data-tab="plans">Subscription Plans</button>
+        <button class="tab" data-tab="taxes">Taxes</button>
+        <button class="tab" data-tab="discounts">Discounts</button>
+    </div>
+
+    <!-- PRODUCTS -->
+    <section class="panel active" id="products">
+        <div class="panel-header">
+            <div><h2>Product Catalogue</h2><p>Create and manage products and their variants.</p></div>
+        </div>
+
+        <div class="form-card" id="productFormCard">
+            <h3 id="productFormTitle">Add New Product</h3>
+            <form id="productForm">
+                <input type="hidden" id="productEditId">
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Product Name *</label>
+                        <input id="productName" required placeholder="e.g. Business Software">
+                    </div>
+                    <div class="field">
+                        <label>Product Type *</label>
+                        <select id="productType" required>
+                            <option value="">Select type</option>
+                            <option>Software</option>
+                            <option>Service</option>
+                            <option>Add-on</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Sales Price (₹) *</label>
+                        <input id="salesPrice" type="number" min="0" step="0.01" required placeholder="1000">
+                    </div>
+                    <div class="field">
+                        <label>Cost Price (₹) *</label>
+                        <input id="costPrice" type="number" min="0" step="0.01" required placeholder="500">
+                    </div>
+                    <div class="field">
+                        <label>Variant Name</label>
+                        <input id="variantName" placeholder="e.g. Odoo Brand">
+                    </div>
+                    <div class="field">
+                        <label>Variant Additional Price (₹)</label>
+                        <input id="variantPrice" type="number" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="field full">
+                        <label>Product Notes</label>
+                        <textarea id="productNotes" placeholder="Enter product description or notes"></textarea>
+                    </div>
+                </div>
+                <div class="variant-preview" id="pricePreview">Final variant price: ₹0.00</div>
+                <div class="form-actions">
+                    <button type="button" class="secondary-btn" onclick="resetProductForm()">Clear</button>
+                    <button type="submit" class="primary-btn">Save Product</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-card">
+            <div class="table-tools">
+                <input class="search" id="productSearch" placeholder="Search products...">
+                <span class="breadcrumb">Product list</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr>
+                        <th>PRODUCT</th><th>TYPE</th><th>SALES PRICE</th>
+                        <th>COST PRICE</th><th>VARIANT</th><th>VARIANT PRICE</th><th>ACTIONS</th>
+                    </tr></thead>
+                    <tbody id="productTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- PLANS -->
+    <section class="panel" id="plans">
+        <div class="panel-header">
+            <div><h2>Subscription Plans</h2><p>Configure billing cycles, availability and lifecycle rules.</p></div>
+        </div>
+
+        <div class="form-card">
+            <h3 id="planFormTitle">Create Subscription Plan</h3>
+            <form id="planForm">
+                <input type="hidden" id="planEditId">
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Plan Name *</label>
+                        <input id="planName" required placeholder="e.g. Premium Monthly">
+                    </div>
+                    <div class="field">
+                        <label>Linked Product *</label>
+                        <select id="planProduct" required><option value="">Select product</option></select>
+                    </div>
+                    <div class="field">
+                        <label>Plan Price (₹) *</label>
+                        <input id="planPrice" type="number" min="0" step="0.01" required>
+                    </div>
+                    <div class="field">
+                        <label>Billing Cycle *</label>
+                        <select id="billingCycle" required>
+                            <option value="">Select cycle</option>
+                            <option>Daily</option><option>Weekly</option>
+                            <option>Monthly</option><option>Yearly</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Minimum Quantity *</label>
+                        <input id="minQuantity" type="number" min="1" value="1" required>
+                    </div>
+                    <div class="field">
+                        <label>Availability Start Date *</label>
+                        <input id="planStart" type="date" required>
+                    </div>
+                    <div class="field">
+                        <label>Availability End Date</label>
+                        <input id="planEnd" type="date">
+                    </div>
+                    <div class="field">
+                        <label>Plan Status</label>
+                        <select id="planStatus"><option>Active</option><option>Inactive</option></select>
+                    </div>
+                    <div class="field full">
+                        <label>Plan Lifecycle Rules</label>
+                        <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:12px">
+                            <label><input type="checkbox" id="autoClose"> Auto-close at end date</label>
+                            <label><input type="checkbox" id="allowEarlyClose" checked> Allow early closure</label>
+                            <label><input type="checkbox" id="allowPause" checked> Allow pause</label>
+                            <label><input type="checkbox" id="allowRenewal" checked> Allow renewal</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="secondary-btn" onclick="resetPlanForm()">Clear</button>
+                    <button type="submit" class="primary-btn">Save Plan</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-card">
+            <div class="table-tools">
+                <input class="search" id="planSearch" placeholder="Search plans...">
+                <span class="breadcrumb">Plan list</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr>
+                        <th>PLAN</th><th>PRODUCT</th><th>PRICE</th><th>CYCLE</th>
+                        <th>MIN QTY</th><th>AVAILABILITY</th><th>STATUS</th><th>ACTIONS</th>
+                    </tr></thead>
+                    <tbody id="planTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- TAXES -->
+    <section class="panel" id="taxes">
+        <div class="panel-header">
+            <div><h2>Tax Configuration</h2><p>Define tax rules for products and subscriptions.</p></div>
+        </div>
+
+        <div class="form-card">
+            <h3 id="taxFormTitle">Create Tax Rule</h3>
+            <form id="taxForm">
+                <input type="hidden" id="taxEditId">
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Tax Name *</label>
+                        <input id="taxName" required placeholder="e.g. GST">
+                    </div>
+                    <div class="field">
+                        <label>Tax Rate (%) *</label>
+                        <input id="taxRate" type="number" min="0" max="100" step="0.01" required placeholder="18">
+                    </div>
+                    <div class="field">
+                        <label>Apply To *</label>
+                        <select id="taxApply" required>
+                            <option value="">Select</option>
+                            <option>All Products</option>
+                            <option>Specific Product</option>
+                            <option>Subscriptions</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Status</label>
+                        <select id="taxStatus"><option>Active</option><option>Inactive</option></select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="secondary-btn" onclick="resetTaxForm()">Clear</button>
+                    <button type="submit" class="primary-btn">Save Tax Rule</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-card">
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>TAX NAME</th><th>RATE</th><th>APPLIES TO</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+                    <tbody id="taxTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- DISCOUNTS -->
+    <section class="panel" id="discounts">
+        <div class="panel-header">
+            <div><h2>Discount Rules</h2><p>Configure automatic discounts for eligible products and subscriptions.</p></div>
+        </div>
+
+        <div class="form-card">
+            <h3 id="discountFormTitle">Create Discount Rule</h3>
+            <form id="discountForm">
+                <input type="hidden" id="discountEditId">
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Discount Name *</label>
+                        <input id="discountName" required placeholder="e.g. Bulk Purchase Offer">
+                    </div>
+                    <div class="field">
+                        <label>Discount Type *</label>
+                        <select id="discountType" required>
+                            <option value="">Select type</option>
+                            <option value="Percentage">Percentage</option>
+                            <option value="Fixed Amount">Fixed Amount</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Discount Value *</label>
+                        <input id="discountValue" type="number" min="0" step="0.01" required>
+                    </div>
+                    <div class="field">
+                        <label>Minimum Purchase (₹)</label>
+                        <input id="minPurchase" type="number" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="field">
+                        <label>Minimum Quantity</label>
+                        <input id="discountMinQty" type="number" min="1" value="1">
+                    </div>
+                    <div class="field">
+                        <label>Usage Limit</label>
+                        <input id="usageLimit" type="number" min="1" placeholder="e.g. 100">
+                    </div>
+                    <div class="field">
+                        <label>Start Date *</label>
+                        <input id="discountStart" type="date" required>
+                    </div>
+                    <div class="field">
+                        <label>End Date *</label>
+                        <input id="discountEnd" type="date" required>
+                    </div>
+                    <div class="field">
+                        <label>Apply Discount To *</label>
+                        <select id="discountApply" required>
+                            <option value="">Select</option>
+                            <option>Specific Product</option>
+                            <option>Entire Subscription</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Linked Product</label>
+                        <select id="discountProduct"><option value="">Select product (if applicable)</option></select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="secondary-btn" onclick="resetDiscountForm()">Clear</button>
+                    <button type="submit" class="primary-btn">Save Discount</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-card">
+            <div class="table-wrap">
+                <table>
+                    <thead><tr>
+                        <th>DISCOUNT</th><th>TYPE</th><th>VALUE</th>
+                        <th>MIN QTY</th><th>VALIDITY</th><th>USAGE LIMIT</th><th>ACTIONS</th>
+                    </tr></thead>
+                    <tbody id="discountTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <p class="footer-note">Brightloop Subscription Management System · Product & Pricing Module</p>
+</div>
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// --------------------------------------------------
+// DEMO STORAGE
+// This version saves data in this browser.
+// Replace storage functions with API calls when backend is ready.
+// --------------------------------------------------
+
+const STORAGE_KEY = "brightloop_catalog_v1";
+
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+    products: [],
+    plans: [],
+    taxes: [],
+    discounts: []
+};
+
+function saveData(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    renderAll();
+}
+
+function uid(){
+    return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+
+function money(value){
+    return "₹" + Number(value || 0).toFixed(2);
+}
+
+function escapeHTML(value){
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    })[char]);
+}
+
+function notify(text){
+    const toast = document.getElementById("toast");
+    toast.textContent = text;
+    toast.style.display = "block";
+    setTimeout(() => toast.style.display = "none", 2600);
+}
+
+function getById(collection,id){
+    return data[collection].find(item => item.id === id);
+}
+
+// --------------------------------------------------
+// NAVIGATION TABS
+// --------------------------------------------------
+
+document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+
+        tab.classList.add("active");
+        document.getElementById(tab.dataset.tab).classList.add("active");
+    });
+});
+
+function openCurrentForm(){
+    const current = document.querySelector(".tab.active").dataset.tab;
+    const form = document.querySelector(`#${current} .form-card`);
+    form.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+// --------------------------------------------------
+// PRODUCT MANAGEMENT
+// --------------------------------------------------
+
+function resetProductForm(){
+    document.getElementById("productForm").reset();
+    document.getElementById("productEditId").value = "";
+    document.getElementById("variantPrice").value = 0;
+    document.getElementById("productFormTitle").textContent = "Add New Product";
+    updatePricePreview();
+}
+
+function updatePricePreview(){
+    const base = Number(document.getElementById("salesPrice").value || 0);
+    const extra = Number(document.getElementById("variantPrice").value || 0);
+    document.getElementById("pricePreview").textContent =
+        "Final variant price: " + money(base + extra);
+}
+
+document.getElementById("salesPrice").addEventListener("input",updatePricePreview);
+document.getElementById("variantPrice").addEventListener("input",updatePricePreview);
+
+document.getElementById("productForm").addEventListener("submit",e=>{
+    e.preventDefault();
+
+    const id = document.getElementById("productEditId").value;
+    const product = {
+        id:id || uid(),
+        name:document.getElementById("productName").value.trim(),
+        type:document.getElementById("productType").value,
+        salesPrice:Number(document.getElementById("salesPrice").value),
+        costPrice:Number(document.getElementById("costPrice").value),
+        variantName:document.getElementById("variantName").value.trim(),
+        variantPrice:Number(document.getElementById("variantPrice").value || 0),
+        notes:document.getElementById("productNotes").value.trim()
+    };
+
+    if(product.costPrice > product.salesPrice && !confirm("Cost price is higher than sales price. Save anyway?")) return;
+
+    const index = data.products.findIndex(p=>p.id===id);
+    if(index>=0) data.products[index]=product;
+    else data.products.push(product);
+
+    saveData();
+    resetProductForm();
+    notify(index>=0 ? "Product updated successfully." : "Product created successfully.");
+});
+
+function editProduct(id){
+    const p=getById("products",id);
+    if(!p)return;
+    document.getElementById("productEditId").value=p.id;
+    document.getElementById("productName").value=p.name;
+    document.getElementById("productType").value=p.type;
+    document.getElementById("salesPrice").value=p.salesPrice;
+    document.getElementById("costPrice").value=p.costPrice;
+    document.getElementById("variantName").value=p.variantName;
+    document.getElementById("variantPrice").value=p.variantPrice;
+    document.getElementById("productNotes").value=p.notes;
+    document.getElementById("productFormTitle").textContent="Edit Product";
+    updatePricePreview();
+    document.getElementById("productFormCard").scrollIntoView({behavior:"smooth"});
+}
+
+function renderProducts(){
+    const query=document.getElementById("productSearch").value.toLowerCase();
+    const rows=data.products.filter(p=>(p.name+" "+p.type).toLowerCase().includes(query));
+    document.getElementById("productTable").innerHTML=rows.length ? rows.map(p=>`
+        <tr>
+            <td><strong>${escapeHTML(p.name)}</strong></td>
+            <td>${escapeHTML(p.type)}</td>
+            <td>${money(p.salesPrice)}</td>
+            <td>${money(p.costPrice)}</td>
+            <td>${escapeHTML(p.variantName || "—")}</td>
+            <td>${money(p.variantPrice)}</td>
+            <td><div class="actions">
+                <button class="action-btn" onclick="editProduct('${p.id}')">Edit</button>
+                <button class="action-btn delete" onclick="deleteItem('products','${p.id}')">Delete</button>
+            </div></td>
+        </tr>`).join(""):`<tr><td colspan="7" class="empty">No products found. Add your first product.</td></tr>`;
+
+    const options=data.products.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join("");
+    document.getElementById("planProduct").innerHTML='<option value="">Select product</option>'+options;
+    document.getElementById("discountProduct").innerHTML='<option value="">Select product (if applicable)</option>'+options;
+}
+
+// --------------------------------------------------
+// PLAN MANAGEMENT
+// --------------------------------------------------
+
+function resetPlanForm(){
+    document.getElementById("planForm").reset();
+    document.getElementById("planEditId").value="";
+    document.getElementById("minQuantity").value=1;
+    document.getElementById("planFormTitle").textContent="Create Subscription Plan";
+}
+
+document.getElementById("planForm").addEventListener("submit",e=>{
+    e.preventDefault();
+
+    const id=document.getElementById("planEditId").value;
+    const start=document.getElementById("planStart").value;
+    const end=document.getElementById("planEnd").value;
+
+    if(end && end<start){
+        notify("End date cannot be before start date.");
+        return;
+    }
+
+    const plan={
+        id:id||uid(),
+        name:document.getElementById("planName").value.trim(),
+        productId:document.getElementById("planProduct").value,
+        price:Number(document.getElementById("planPrice").value),
+        cycle:document.getElementById("billingCycle").value,
+        minQuantity:Number(document.getElementById("minQuantity").value),
+        start,end,
+        status:document.getElementById("planStatus").value,
+        autoClose:document.getElementById("autoClose").checked,
+        earlyClose:document.getElementById("allowEarlyClose").checked,
+        pause:document.getElementById("allowPause").checked,
+        renewal:document.getElementById("allowRenewal").checked
+    };
+
+    const index=data.plans.findIndex(p=>p.id===id);
+    if(index>=0)data.plans[index]=plan;
+    else data.plans.push(plan);
+
+    saveData();
+    resetPlanForm();
+    notify("Subscription plan saved successfully.");
+});
+
+function editPlan(id){
+    const p=getById("plans",id);
+    if(!p)return;
+    document.getElementById("planEditId").value=p.id;
+    document.getElementById("planName").value=p.name;
+    document.getElementById("planProduct").value=p.productId;
+    document.getElementById("planPrice").value=p.price;
+    document.getElementById("billingCycle").value=p.cycle;
+    document.getElementById("minQuantity").value=p.minQuantity;
+    document.getElementById("planStart").value=p.start;
+    document.getElementById("planEnd").value=p.end;
+    document.getElementById("planStatus").value=p.status;
+    document.getElementById("autoClose").checked=p.autoClose;
+    document.getElementById("allowEarlyClose").checked=p.earlyClose;
+    document.getElementById("allowPause").checked=p.pause;
+    document.getElementById("allowRenewal").checked=p.renewal;
+    document.getElementById("planFormTitle").textContent="Edit Subscription Plan";
+    document.querySelector('[data-tab="plans"]').click();
+    document.querySelector("#plans .form-card").scrollIntoView({behavior:"smooth"});
+}
+
+function renderPlans(){
+    const query=document.getElementById("planSearch").value.toLowerCase();
+    const rows=data.plans.filter(p=>p.name.toLowerCase().includes(query));
+    document.getElementById("planTable").innerHTML=rows.length?rows.map(p=>{
+        const product=getById("products",p.productId);
+        return `<tr>
+            <td><strong>${escapeHTML(p.name)}</strong></td>
+            <td>${escapeHTML(product?.name||"Product unavailable")}</td>
+            <td>${money(p.price)}</td>
+            <td>${escapeHTML(p.cycle)}</td>
+            <td>${p.minQuantity}</td>
+            <td>${escapeHTML(p.start)} – ${escapeHTML(p.end||"No end date")}</td>
+            <td><span class="status ${p.status==="Active"?"":"inactive"}">${escapeHTML(p.status)}</span></td>
+            <td><div class="actions">
+                <button class="action-btn" onclick="editPlan('${p.id}')">Edit</button>
+                <button class="action-btn delete" onclick="deleteItem('plans','${p.id}')">Delete</button>
+            </div></td>
+        </tr>`;
+    }).join(""):`<tr><td colspan="8" class="empty">No subscription plans found.</td></tr>`;
+}
+
+// --------------------------------------------------
+// TAX MANAGEMENT
+// --------------------------------------------------
+
+function resetTaxForm(){
+    document.getElementById("taxForm").reset();
+    document.getElementById("taxEditId").value="";
+    document.getElementById("taxFormTitle").textContent="Create Tax Rule";
+}
+
+document.getElementById("taxForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const id=document.getElementById("taxEditId").value;
+    const tax={
+        id:id||uid(),
+        name:document.getElementById("taxName").value.trim(),
+        rate:Number(document.getElementById("taxRate").value),
+        apply:document.getElementById("taxApply").value,
+        status:document.getElementById("taxStatus").value
+    };
+    const index=data.taxes.findIndex(t=>t.id===id);
+    if(index>=0)data.taxes[index]=tax;
+    else data.taxes.push(tax);
+    saveData();
+    resetTaxForm();
+    notify("Tax rule saved successfully.");
+});
+
+function editTax(id){
+    const t=getById("taxes",id);
+    if(!t)return;
+    document.getElementById("taxEditId").value=t.id;
+    document.getElementById("taxName").value=t.name;
+    document.getElementById("taxRate").value=t.rate;
+    document.getElementById("taxApply").value=t.apply;
+    document.getElementById("taxStatus").value=t.status;
+    document.getElementById("taxFormTitle").textContent="Edit Tax Rule";
+    document.querySelector('[data-tab="taxes"]').click();
+    document.querySelector("#taxes .form-card").scrollIntoView({behavior:"smooth"});
+}
+
+function renderTaxes(){
+    document.getElementById("taxTable").innerHTML=data.taxes.length?data.taxes.map(t=>`
+        <tr>
+            <td><strong>${escapeHTML(t.name)}</strong></td>
+            <td>${t.rate}%</td>
+            <td>${escapeHTML(t.apply)}</td>
+            <td><span class="status ${t.status==="Active"?"":"inactive"}">${escapeHTML(t.status)}</span></td>
+            <td><div class="actions">
+                <button class="action-btn" onclick="editTax('${t.id}')">Edit</button>
+                <button class="action-btn delete" onclick="deleteItem('taxes','${t.id}')">Delete</button>
+            </div></td>
+        </tr>`).join(""):`<tr><td colspan="5" class="empty">No tax rules configured.</td></tr>`;
+}
+
+// --------------------------------------------------
+// DISCOUNT MANAGEMENT
+// --------------------------------------------------
+
+function resetDiscountForm(){
+    document.getElementById("discountForm").reset();
+    document.getElementById("discountEditId").value="";
+    document.getElementById("discountMinQty").value=1;
+    document.getElementById("minPurchase").value=0;
+    document.getElementById("discountFormTitle").textContent="Create Discount Rule";
+}
+
+document.getElementById("discountForm").addEventListener("submit",e=>{
+    e.preventDefault();
+
+    const id=document.getElementById("discountEditId").value;
+    const start=document.getElementById("discountStart").value;
+    const end=document.getElementById("discountEnd").value;
+    const type=document.getElementById("discountType").value;
+    const value=Number(document.getElementById("discountValue").value);
+    const usage=document.getElementById("usageLimit").value;
+
+    if(end<start){
+        notify("Discount end date must be after start date.");
+        return;
+    }
+    if(type==="Percentage" && value>100){
+        notify("Percentage discount cannot exceed 100%.");
+        return;
+    }
+    if(type==="Fixed Amount" && value<=0){
+        notify("Enter a valid fixed discount amount.");
+        return;
+    }
+    if(document.getElementById("discountApply").value==="Specific Product" &&
+       !document.getElementById("discountProduct").value){
+        notify("Select a product for this discount.");
+        return;
+    }
+
+    const discount={
+        id:id||uid(),
+        name:document.getElementById("discountName").value.trim(),
+        type,
+        value,
+        minPurchase:Number(document.getElementById("minPurchase").value||0),
+        minQty:Number(document.getElementById("discountMinQty").value||1),
+        usageLimit:usage?Number(usage):null,
+        start,end,
+        apply:document.getElementById("discountApply").value,
+        productId:document.getElementById("discountProduct").value
+    };
+
+    const index=data.discounts.findIndex(d=>d.id===id);
+    if(index>=0)data.discounts[index]=discount;
+    else data.discounts.push(discount);
+
+    saveData();
+    resetDiscountForm();
+    notify("Discount rule saved successfully.");
+});
+
+function editDiscount(id){
+    const d=getById("discounts",id);
+    if(!d)return;
+    document.getElementById("discountEditId").value=d.id;
+    document.getElementById("discountName").value=d.name;
+    document.getElementById("discountType").value=d.type;
+    document.getElementById("discountValue").value=d.value;
+    document.getElementById("minPurchase").value=d.minPurchase;
+    document.getElementById("discountMinQty").value=d.minQty;
+    document.getElementById("usageLimit").value=d.usageLimit??"";
+    document.getElementById("discountStart").value=d.start;
+    document.getElementById("discountEnd").value=d.end;
+    document.getElementById("discountApply").value=d.apply;
+    document.getElementById("discountProduct").value=d.productId;
+    document.getElementById("discountFormTitle").textContent="Edit Discount Rule";
+    document.querySelector('[data-tab="discounts"]').click();
+    document.querySelector("#discounts .form-card").scrollIntoView({behavior:"smooth"});
+}
+
+function renderDiscounts(){
+    document.getElementById("discountTable").innerHTML=data.discounts.length?data.discounts.map(d=>`
+        <tr>
+            <td><strong>${escapeHTML(d.name)}</strong></td>
+            <td>${escapeHTML(d.type)}</td>
+            <td>${d.type==="Percentage"?d.value+"%":money(d.value)}</td>
+            <td>${d.minQty}</td>
+            <td>${escapeHTML(d.start)} – ${escapeHTML(d.end)}</td>
+            <td>${d.usageLimit??"Unlimited"}</td>
+            <td><div class="actions">
+                <button class="action-btn" onclick="editDiscount('${d.id}')">Edit</button>
+                <button class="action-btn delete" onclick="deleteItem('discounts','${d.id}')">Delete</button>
+            </div></td>
+        </tr>`).join(""):`<tr><td colspan="7" class="empty">No discount rules found.</td></tr>`;
+}
+
+// --------------------------------------------------
+// DELETE
+// --------------------------------------------------
+
+function deleteItem(collection,id){
+    if(!confirm("Are you sure you want to delete this record?"))return;
+    data[collection]=data[collection].filter(item=>item.id!==id);
+    saveData();
+    notify("Record deleted.");
+}
+
+// --------------------------------------------------
+// SEARCH
+// --------------------------------------------------
+
+["productSearch","planSearch"].forEach(id=>{
+    document.getElementById(id).addEventListener("input",()=>{
+        if(id==="productSearch")renderProducts();
+        if(id==="planSearch")renderPlans();
+    });
+});
+
+// --------------------------------------------------
+// DASHBOARD COUNTS AND RENDER
+// --------------------------------------------------
+
+function renderAll(){
+    document.getElementById("productCount").textContent=data.products.length;
+    document.getElementById("planCount").textContent=data.plans.filter(p=>p.status==="Active").length;
+    document.getElementById("taxCount").textContent=data.taxes.length;
+    document.getElementById("discountCount").textContent=data.discounts.length;
+
+    renderProducts();
+    renderPlans();
+    renderTaxes();
+    renderDiscounts();
+}
+
+renderAll();
+</script>
+</body>
+</html>
