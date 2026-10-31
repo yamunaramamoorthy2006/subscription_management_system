@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brightloop | Sales & Subscriptions</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,"Segoe UI",Arial,sans-serif}
+body{background:#f8fafc;color:#172554}
+button,input,select,textarea{font:inherit}
+.app{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:245px;background:#172554;color:white;padding:25px 17px;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;z-index:5}
+.logo{display:flex;align-items:center;gap:11px;font-size:22px;font-weight:750;padding:0 10px 35px}
+.logo-icon{background:#3b82f6;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:22px}
+.nav-label{font-size:10px;color:#94a3b8;letter-spacing:1.5px;padding:12px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;color:#cbd5e1;text-decoration:none;font-size:14px;margin-bottom:5px}
+.nav-item:hover,.nav-item.active{background:#263b70;color:white}
+.nav-icon{width:20px;text-align:center;font-size:17px}
+.sidebar-bottom{margin-top:auto;border-top:1px solid #334477;padding-top:17px}
+.profile{display:flex;align-items:center;gap:10px;padding:8px}
+.avatar{width:35px;height:35px;border-radius:50%;background:#3b82f6;display:grid;place-items:center;font-weight:700}
+.profile small{display:block;color:#94a3b8;margin-top:3px}
+
+/* MAIN */
+.main{margin-left:245px;width:calc(100% - 245px)}
+.topbar{height:75px;background:white;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;padding:0 35px}
+.breadcrumb{font-size:13px;color:#64748b}
+.top-actions{display:flex;align-items:center;gap:18px;font-size:14px}
+.content{padding:30px 35px;max-width:1500px;margin:auto}
+.page-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;gap:15px}
+.page-heading h1{font-size:25px;margin-bottom:7px}
+.page-heading p{font-size:13px;color:#64748b}
+.primary-btn,.secondary-btn,.danger-btn{border:0;border-radius:7px;padding:11px 16px;font-size:13px;font-weight:650;cursor:pointer}
+.primary-btn{background:#2563eb;color:white}
+.primary-btn:hover{background:#1d4ed8}
+.secondary-btn{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.danger-btn{background:#fef2f2;color:#b91c1c}
+
+/* SUMMARY */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:17px;margin-bottom:25px}
+.stat-card{background:white;border:1px solid #e2e8f0;border-radius:11px;padding:20px}
+.stat-top{display:flex;justify-content:space-between;color:#64748b;font-size:12px}
+.stat-icon{width:34px;height:34px;background:#eff6ff;color:#2563eb;border-radius:8px;display:grid;place-items:center;font-size:18px}
+.stat-value{font-size:26px;font-weight:750;margin-top:13px}
+.stat-note{font-size:11px;color:#94a3b8;margin-top:5px}
+
+/* TABS */
+.tabs{display:flex;gap:8px;border-bottom:1px solid #e2e8f0;margin-bottom:20px;overflow-x:auto}
+.tab{background:none;border:0;padding:13px 17px;color:#64748b;font-weight:650;font-size:13px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent}
+.tab.active{color:#2563eb;border-bottom-color:#2563eb}
+.panel{display:none}
+.panel.active{display:block}
+.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px;gap:12px}
+.panel-header h2{font-size:17px}
+.panel-header p{font-size:12px;color:#64748b;margin-top:5px}
+
+/* TABLE */
+.table-card{background:white;border:1px solid #e2e8f0;border-radius:11px;overflow:hidden}
+.table-tools{padding:16px;display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #e2e8f0}
+.search{max-width:300px;width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:7px;outline:none;font-size:13px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;white-space:nowrap}
+th{text-align:left;background:#f8fafc;color:#64748b;font-size:11px;font-weight:700;padding:14px 17px}
+td{padding:15px 17px;border-top:1px solid #f1f5f9;font-size:12px;color:#334155}
+td strong{color:#172554}
+.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:10px;font-weight:700;background:#dcfce7;color:#166534}
+.status.draft{background:#f1f5f9;color:#64748b}
+.status.quotation{background:#fef3c7;color:#92400e}
+.status.confirmed{background:#dbeafe;color:#1d4ed8}
+.status.paused{background:#f3e8ff;color:#7e22ce}
+.status.closed{background:#fee2e2;color:#b91c1c}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.action-btn{border:0;background:#eff6ff;color:#2563eb;padding:6px 9px;border-radius:5px;cursor:pointer;font-size:11px}
+.action-btn.delete{background:#fef2f2;color:#b91c1c}
+.action-btn.green{background:#dcfce7;color:#166534}
+.empty{text-align:center;padding:35px;color:#94a3b8}
+
+/* FORMS */
+.form-card{background:white;border:1px solid #e2e8f0;border-radius:11px;padding:22px;margin-bottom:20px}
+.form-card h3{font-size:15px;margin-bottom:18px}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.field label{display:block;font-size:12px;font-weight:650;color:#334155;margin-bottom:8px}
+.field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:7px;background:white;font-size:13px;color:#172554}
+.field input:focus,.field select:focus,.field textarea:focus,.search:focus{border-color:#2563eb;outline:none;box-shadow:0 0 0 3px #2563eb18}
+.field textarea{min-height:70px;resize:vertical}
+.field.full{grid-column:1/-1}
+.form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.hint{font-size:11px;color:#94a3b8;margin-top:6px}
+.line-card{border:1px solid #e2e8f0;border-radius:9px;padding:16px;margin-top:12px;background:#fbfdff}
+.line-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;font-size:12px;font-weight:700}
+.line-grid{display:grid;grid-template-columns:2fr 2fr 1fr 1fr 1fr;gap:10px}
+.line-grid label{display:block;font-size:11px;color:#64748b;margin-bottom:6px}
+.line-grid input,.line-grid select{width:100%;min-width:0;padding:9px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;background:white}
+.summary-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:17px;margin-top:18px}
+.summary-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;color:#64748b}
+.summary-row.total{border-top:1px solid #e2e8f0;margin-top:7px;padding-top:13px;color:#172554;font-size:16px;font-weight:750}
+.toast{position:fixed;right:25px;bottom:25px;background:#172554;color:white;padding:14px 20px;border-radius:8px;display:none;z-index:20;font-size:13px;box-shadow:0 5px 20px #0002}
+.footer-note{color:#94a3b8;font-size:11px;margin-top:20px}
+.hidden{display:none!important}
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;padding:12px;border-radius:8px;font-size:12px;line-height:1.6;margin-bottom:17px}
+
+/* RESPONSIVE */
+@media(max-width:1000px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){
+.sidebar{width:65px;padding:20px 8px}
+.logo{padding:0 5px 30px}
+.logo span,.nav-label,.nav-item span:not(.nav-icon),.profile div:last-child{display:none}
+.nav-item{justify-content:center;padding:13px 5px}
+.profile{justify-content:center}
+.main{margin-left:65px;width:calc(100% - 65px)}
+.content{padding:22px 15px}
+.topbar{padding:0 15px}
+.form-grid{grid-template-columns:1fr}
+.field.full{grid-column:auto}
+.line-grid{grid-template-columns:1fr 1fr}
+.page-heading{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:420px){.stats{grid-template-columns:1fr 1fr}.stat-card{padding:13px}.stat-value{font-size:21px}}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="logo"><div class="logo-icon">B</div><span>Brightloop</span></div>
+    <div class="nav-label">WORKSPACE</div>
+    <a class="nav-item" href="#"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">♙</span><span>Customers</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">▣</span><span>Products & Pricing</span></a>
+    <a class="nav-item active" href="#"><span class="nav-icon">▤</span><span>Quotations</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">⟳</span><span>Subscriptions</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">▧</span><span>Invoices</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">₹</span><span>Payments</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">▥</span><span>Reports</span></a>
+    <div class="sidebar-bottom">
+        <div class="profile">
+            <div class="avatar">S</div>
+            <div>Sales Staff<small>Staff account</small></div>
+        </div>
+    </div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+    <div class="breadcrumb">Brightloop / Sales & Subscriptions</div>
+    <div class="top-actions"><span>🔔</span><strong>Sales Staff</strong></div>
+</header>
+
+<div class="content">
+
+<div class="page-heading">
+    <div>
+        <h1>Sales & Subscriptions</h1>
+        <p>Create quotations, manage subscription contracts and track their lifecycle.</p>
+    </div>
+    <button class="primary-btn" onclick="openCurrentForm()">+ Create New</button>
+</div>
+
+<!-- SUMMARY CARDS -->
+<section class="stats">
+    <div class="stat-card">
+        <div class="stat-top">Total Quotations <span class="stat-icon">▤</span></div>
+        <div class="stat-value" id="quotationCount">0</div>
+        <div class="stat-note">All created quotations</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-top">Active Subscriptions <span class="stat-icon">⟳</span></div>
+        <div class="stat-value" id="activeCount">0</div>
+        <div class="stat-note">Currently active contracts</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-top">Pending Quotations <span class="stat-icon">◷</span></div>
+        <div class="stat-value" id="pendingCount">0</div>
+        <div class="stat-note">Awaiting confirmation</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-top">Subscription Value <span class="stat-icon">₹</span></div>
+        <div class="stat-value" id="subscriptionValue">₹0</div>
+        <div class="stat-note">Total value of subscriptions</div>
+    </div>
+</section>
+
+<!-- TABS -->
+<div class="tabs">
+    <button class="tab active" data-tab="templates">Quotation Templates</button>
+    <button class="tab" data-tab="quotations">Quotations</button>
+    <button class="tab" data-tab="subscriptions">Subscriptions</button>
+</div>
+
+<!-- TEMPLATES -->
+<section class="panel active" id="templates">
+    <div class="panel-header">
+        <div><h2>Quotation Templates</h2><p>Save reusable quotation configurations for faster sales processing.</p></div>
+    </div>
+
+    <div class="form-card">
+        <h3 id="templateFormTitle">Create Quotation Template</h3>
+        <form id="templateForm">
+            <input type="hidden" id="templateEditId">
+            <div class="form-grid">
+                <div class="field">
+                    <label>Template Name *</label>
+                    <input id="templateName" required placeholder="e.g. Premium Business Package">
+                </div>
+                <div class="field">
+                    <label>Quotation Validity (Days) *</label>
+                    <input id="templateValidity" type="number" min="1" value="15" required>
+                </div>
+                <div class="field">
+                    <label>Product *</label>
+                    <select id="templateProduct" required></select>
+                </div>
+                <div class="field">
+                    <label>Subscription Plan *</label>
+                    <select id="templatePlan" required></select>
+                </div>
+                <div class="field">
+                    <label>Default Quantity *</label>
+                    <input id="templateQuantity" type="number" min="1" value="1" required>
+                </div>
+                <div class="field">
+                    <label>Payment Terms</label>
+                    <select id="templatePaymentTerms">
+                        <option>Due Immediately</option>
+                        <option>Net 7 Days</option>
+                        <option>Net 15 Days</option>
+                        <option>Net 30 Days</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="secondary-btn" onclick="resetTemplateForm()">Clear</button>
+                <button type="submit" class="primary-btn">Save Template</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-card">
+        <div class="table-tools">
+            <input class="search" id="templateSearch" placeholder="Search templates...">
+            <span class="breadcrumb">Saved templates</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>TEMPLATE</th><th>PRODUCT</th><th>PLAN</th>
+                    <th>VALIDITY</th><th>DEFAULT QTY</th><th>PAYMENT TERMS</th><th>ACTIONS</th>
+                </tr></thead>
+                <tbody id="templateTable"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- QUOTATIONS -->
+<section class="panel" id="quotations">
+    <div class="panel-header">
+        <div><h2>Create Quotation</h2><p>Prepare customer offers using existing products and plans.</p></div>
+    </div>
+
+    <div class="info-box">
+        Customer details are entered here for this prototype. In the integrated application,
+        select an existing customer record from Member 1's shared customer database.
+    </div>
+
+    <div class="form-card">
+        <h3 id="quotationFormTitle">New Quotation</h3>
+        <form id="quotationForm">
+            <input type="hidden" id="quotationEditId">
+
+            <div class="form-grid">
+                <div class="field">
+                    <label>Quotation Template</label>
+                    <select id="quotationTemplate">
+                        <option value="">Create without template</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Customer Name *</label>
+                    <input id="customerName" required placeholder="Enter customer name">
+                </div>
+                <div class="field">
+                    <label>Customer Email *</label>
+                    <input id="customerEmail" type="email" required placeholder="customer@example.com">
+                </div>
+                <div class="field">
+                    <label>Customer ID</label>
+                    <input id="customerId" placeholder="Shared customer ID (when integrated)">
+                </div>
+                <div class="field">
+                    <label>Start Date *</label>
+                    <input id="quotationStart" type="date" required>
+                </div>
+                <div class="field">
+                    <label>Expiry Date *</label>
+                    <input id="quotationExpiry" type="date" required>
+                </div>
+                <div class="field">
+                    <label>Payment Terms *</label>
+                    <select id="quotationPaymentTerms" required>
+                        <option>Due Immediately</option>
+                        <option>Net 7 Days</option>
+                        <option>Net 15 Days</option>
+                        <option>Net 30 Days</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-top:25px;display:flex;justify-content:space-between;align-items:center;gap:10px">
+                <h3 style="font-size:14px">Quotation Lines</h3>
+                <button type="button" class="secondary-btn" onclick="addQuotationLine()">+ Add Line</button>
+            </div>
+
+            <div id="quotationLines"></div>
+
+            <div class="summary-box">
+                <div class="summary-row"><span>Subtotal</span><strong id="subtotal">₹0.00</strong></div>
+                <div class="summary-row"><span>Tax</span><strong id="taxTotal">₹0.00</strong></div>
+                <div class="summary-row total"><span>Grand Total</span><strong id="grandTotal">₹0.00</strong></div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="secondary-btn" onclick="resetQuotationForm()">Clear</button>
+                <button type="submit" class="primary-btn" id="quotationSaveButton">Save Quotation</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-card">
+        <div class="table-tools">
+            <input class="search" id="quotationSearch" placeholder="Search quotation or customer...">
+            <span class="breadcrumb">Quotation records</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>QUOTATION NO.</th><th>CUSTOMER</th><th>DATE</th>
+                    <th>VALID UNTIL</th><th>AMOUNT</th><th>STATUS</th><th>ACTIONS</th>
+                </tr></thead>
+                <tbody id="quotationTable"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- SUBSCRIPTIONS -->
+<section class="panel" id="subscriptions">
+    <div class="panel-header">
+        <div><h2>Subscription Management</h2><p>Track confirmed contracts and manage their lifecycle.</p></div>
+    </div>
+
+    <div class="info-box">
+        Convert a quotation into a subscription after confirmation. Manage its status
+        according to the plan's pause, renewal and closure rules.
+    </div>
+
+    <div class="table-card">
+        <div class="table-tools">
+            <input class="search" id="subscriptionSearch" placeholder="Search subscription or customer...">
+            <span class="breadcrumb">Subscription records</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr>
+                    <th>SUBSCRIPTION NO.</th><th>CUSTOMER</th><th>PLAN / PRODUCTS</th>
+                    <th>START DATE</th><th>EXPIRY DATE</th><th>AMOUNT</th>
+                    <th>STATUS</th><th>ACTIONS</th>
+                </tr></thead>
+                <tbody id="subscriptionTable"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<p class="footer-note">Brightloop Subscription Management System · Sales & Subscription Module</p>
+</div>
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// --------------------------------------------------
+// LOCAL DEMO STORAGE
+// Replace with shared backend API calls during integration.
+// --------------------------------------------------
+
+const STORAGE_KEY="brightloop_sales_v1";
+const CATALOG_KEY="brightloop_catalog_v1";
+
+let data=JSON.parse(localStorage.getItem(STORAGE_KEY))||{
+    templates:[],
+    quotations:[],
+    subscriptions:[]
+};
+
+let catalog=JSON.parse(localStorage.getItem(CATALOG_KEY))||{
+    products:[],plans:[],taxes:[]
+};
+
+function saveData(){
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+    renderAll();
+}
+
+function uid(){
+    return Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+}
+
+function number(prefix){
+    return prefix+"-"+Date.now().toString().slice(-8);
+}
+
+function money(n){
+    return "₹"+Number(n||0).toFixed(2);
+}
+
+function escapeHTML(value){
+    return String(value??"").replace(/[&<>"']/g,c=>({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    })[c]);
+}
+
+function getRecord(collection,id){
+    return data[collection].find(x=>x.id===id);
+}
+
+function getProduct(id){
+    return catalog.products.find(x=>x.id===id);
+}
+
+function getPlan(id){
+    return catalog.plans.find(x=>x.id===id);
+}
+
+function notify(text){
+    const toast=document.getElementById("toast");
+    toast.textContent=text;
+    toast.style.display="block";
+    setTimeout(()=>toast.style.display="none",2800);
+}
+
+function today(){
+    const d=new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+
+function addDays(date,days){
+    const d=new Date(date+"T00:00:00");
+    d.setDate(d.getDate()+Number(days));
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+
+// --------------------------------------------------
+// TAB NAVIGATION
+// --------------------------------------------------
+
+document.querySelectorAll(".tab").forEach(tab=>{
+    tab.addEventListener("click",()=>{
+        document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById(tab.dataset.tab).classList.add("active");
+    });
+});
+
+function openCurrentForm(){
+    const current=document.querySelector(".tab.active").dataset.tab;
+    const target=document.querySelector("#"+current+" .form-card");
+    if(target)target.scrollIntoView({behavior:"smooth"});
+}
+
+// --------------------------------------------------
+// LOAD PRODUCT AND PLAN OPTIONS FROM MEMBER 2 DEMO
+// --------------------------------------------------
+
+function refreshCatalog(){
+    catalog=JSON.parse(localStorage.getItem(CATALOG_KEY))||{
+        products:[],plans:[],taxes:[]
+    };
+
+    const productOptions=catalog.products.map(p=>
+        `<option value="${escapeHTML(p.id)}">${escapeHTML(p.name)}</option>`
+    ).join("");
+
+    const planOptions=catalog.plans.map(p=>
+        `<option value="${escapeHTML(p.id)}">${escapeHTML(p.name)} (${escapeHTML(p.cycle)})</option>`
+    ).join("");
+
+    document.getElementById("templateProduct").innerHTML=
+        '<option value="">Select product</option>'+productOptions;
+
+    document.getElementById("templatePlan").innerHTML=
+        '<option value="">Select plan</option>'+planOptions;
+
+    document.querySelectorAll(".line-product").forEach(select=>{
+        const current=select.value;
+        select.innerHTML='<option value="">Select product</option>'+productOptions;
+        select.value=current;
+    });
+
+    document.querySelectorAll(".line-plan").forEach(select=>{
+        const current=select.value;
+        select.innerHTML='<option value="">Select plan</option>'+planOptions;
+        select.value=current;
+    });
+}
+
+// --------------------------------------------------
+// QUOTATION TEMPLATE MANAGEMENT
+// --------------------------------------------------
+
+function resetTemplateForm(){
+    document.getElementById("templateForm").reset();
+    document.getElementById("templateEditId").value="";
+    document.getElementById("templateValidity").value=15;
+    document.getElementById("templateQuantity").value=1;
+    document.getElementById("templateFormTitle").textContent="Create Quotation Template";
+}
+
+document.getElementById("templateForm").addEventListener("submit",e=>{
+    e.preventDefault();
+
+    const id=document.getElementById("templateEditId").value;
+    const template={
+        id:id||uid(),
+        name:document.getElementById("templateName").value.trim(),
+        validity:Number(document.getElementById("templateValidity").value),
+        productId:document.getElementById("templateProduct").value,
+        planId:document.getElementById("templatePlan").value,
+        quantity:Number(document.getElementById("templateQuantity").value),
+        paymentTerms:document.getElementById("templatePaymentTerms").value
+    };
+
+    const plan=getPlan(template.planId);
+    if(!plan){
+        notify("Select a valid subscription plan.");
+        return;
+    }
+
+    const index=data.templates.findIndex(t=>t.id===id);
+    if(index>=0)data.templates[index]=template;
+    else data.templates.push(template);
+
+    saveData();
+    resetTemplateForm();
+    notify("Quotation template saved.");
+});
+
+function editTemplate(id){
+    const t=getRecord("templates",id);
+    if(!t)return;
+    document.getElementById("templateEditId").value=t.id;
+    document.getElementById("templateName").value=t.name;
+    document.getElementById("templateValidity").value=t.validity;
+    document.getElementById("templateProduct").value=t.productId;
+    document.getElementById("templatePlan").value=t.planId;
+    document.getElementById("templateQuantity").value=t.quantity;
+    document.getElementById("templatePaymentTerms").value=t.paymentTerms;
+    document.getElementById("templateFormTitle").textContent="Edit Quotation Template";
+    document.querySelector('[data-tab="templates"]').click();
+    document.querySelector("#templates .form-card").scrollIntoView({behavior:"smooth"});
+}
+
+function renderTemplates(){
+    const q=document.getElementById("templateSearch").value.toLowerCase();
+    const rows=data.templates.filter(t=>t.name.toLowerCase().includes(q));
+
+    document.getElementById("templateTable").innerHTML=rows.length?rows.map(t=>{
+        const p=getProduct(t.productId);
+        const plan=getPlan(t.planId);
+        return `<tr>
+            <td><strong>${escapeHTML(t.name)}</strong></td>
+            <td>${escapeHTML(p?.name||"Product unavailable")}</td>
+            <td>${escapeHTML(plan?.name||"Plan unavailable")}</td>
+            <td>${t.validity} days</td>
+            <td>${t.quantity}</td>
+            <td>${escapeHTML(t.paymentTerms)}</td>
+            <td><div class="actions">
+                <button class="action-btn" onclick="editTemplate('${t.id}')">Edit</button>
+                <button class="action-btn" onclick="useTemplate('${t.id}')">Use</button>
+                <button class="action-btn delete" onclick="deleteRecord('templates','${t.id}')">Delete</button>
+            </div></td>
+        </tr>`;
+    }).join(""):`<tr><td colspan="7" class="empty">No templates created yet.</td></tr>`;
+
+    const options=data.templates.map(t=>
+        `<option value="${escapeHTML(t.id)}">${escapeHTML(t.name)}</option>`
+    ).join("");
+
+    document.getElementById("quotationTemplate").innerHTML=
+        '<option value="">Create without template</option>'+options;
+}
+
+function useTemplate(id){
+    const t=getRecord("templates",id);
+    if(!t)return;
+
+    document.querySelector('[data-tab="quotations"]').click();
+    document.getElementById("quotationTemplate").value=t.id;
+    document.getElementById("quotationPaymentTerms").value=t.paymentTerms;
+    document.getElementById("quotationStart").value=today();
+    document.getElementById("quotationExpiry").value=addDays(today(),t.validity);
+
+    document.getElementById("quotationLines").innerHTML="";
+    addQuotationLine({
+        productId:t.productId,
+        planId:t.planId,
+        quantity:t.quantity
+    });
+
+    document.querySelector("#quotations .form-card").scrollIntoView({behavior:"smooth"});
+}
+
+// --------------------------------------------------
+// QUOTATION LINE MANAGEMENT
+// --------------------------------------------------
+
+let lineCounter=0;
+
+function addQuotationLine(values={}){
+    lineCounter++;
+    const id=lineCounter;
+
+    const card=document.createElement("div");
+    card.className="line-card";
+    card.dataset.lineId=id;
+
+    card.innerHTML=`
+        <div class="line-heading">
+            <span>Line Item ${id}</span>
+            <button type="button" class="action-btn delete" onclick="removeLine(${id})">Remove</button>
+        </div>
+        <div class="line-grid">
+            <div>
+                <label>Product</label>
+                <select class="line-product" onchange="updateLine(${id})">
+                    <option value="">Select product</option>
+                </select>
+            </div>
+            <div>
+                <label>Subscription Plan</label>
+                <select class="line-plan" onchange="updateLine(${id})">
+                    <option value="">Select plan</option>
+                </select>
+            </div>
+            <div>
+                <label>Quantity</label>
+                <input class="line-quantity" type="number" min="1" value="${values.quantity||1}" onchange="updateLine(${id})">
+            </div>
+            <div>
+                <label>Unit Price (₹)</label>
+                <input class="line-price" type="number" min="0" step="0.01" value="${values.unitPrice??""}" onchange="calculateTotals()">
+            </div>
+            <div>
+                <label>Tax (%)</label>
+                <input class="line-tax" type="number" min="0" max="100" step="0.01" value="${values.taxRate??0}" onchange="calculateTotals()">
+            </div>
+        </div>
+        <div class="hint line-total">Line total: ₹0.00</div>
+    `;
+
+    document.getElementById("quotationLines").appendChild(card);
+    refreshCatalog();
+
+    if(values.productId)card.querySelector(".line-product").value=values.productId;
+    if(values.planId)card.querySelector(".line-plan").value=values.planId;
+
+    if(values.unitPrice!==undefined){
+        card.querySelector(".line-price").value=values.unitPrice;
+    }else{
+        updateLine(id);
+    }
+
+    calculateTotals();
+}
+
+function removeLine(id){
+    const card=document.querySelector(`[data-line-id="${id}"]`);
+    if(card)card.remove();
+    calculateTotals();
+}
+
+function updateLine(id){
+    const card=document.querySelector(`[data-line-id="${id}"]`);
+    if(!card)return;
+
+    const productId=card.querySelector(".line-product").value;
+    const planId=card.querySelector(".line-plan").value;
+
+    const product=getProduct(productId);
+    const plan=getPlan(planId);
+
+    if(plan && product && plan.productId!==productId){
+        notify("The selected plan belongs to a different product.");
+        card.querySelector(".line-plan").value="";
+        return;
+    }
+
+    if(plan){
+        card.querySelector(".line-price").value=Number(plan.price).toFixed(2);
+    }else if(product){
+        card.querySelector(".line-price").value=Number(product.salesPrice||0).toFixed(2);
+    }
+
+    calculateTotals();
+}
+
+function collectLines(){
+    const cards=[...document.querySelectorAll(".line-card")];
+
+    return cards.map(card=>{
+        const productId=card.querySelector(".line-product").value;
+        const planId=card.querySelector(".line-plan").value;
+        const product=getProduct(productId);
+        const plan=getPlan(planId);
+        const quantity=Number(card.querySelector(".line-quantity").value);
+        const unitPrice=Number(card.querySelector(".line-price").value);
+        const taxRate=Number(card.querySelector(".line-tax").value||0);
+
+        return {
+            productId,
+            productName:product?.name||"",
+            planId,
+            planName:plan?.name||"",
+            quantity,
+            unitPrice,
+            taxRate,
+            subtotal:quantity*unitPrice,
+            taxAmount:quantity*unitPrice*taxRate/100,
+            total:quantity*unitPrice*(1+taxRate/100)
+        };
+    });
+}
+
+function calculateTotals(){
+    const lines=collectLines();
+    let subtotal=0,tax=0;
+
+    lines.forEach(line=>{
+        subtotal+=line.subtotal;
+        tax+=line.taxAmount;
+
+        const card=document.querySelector(
+            `.line-card:nth-child(${lines.indexOf(line)+1})`
+        );
+        if(card){
+            card.querySelector(".line-total").textContent=
+                "Line total: "+money(line.total);
+        }
+    });
+
+    document.getElementById("subtotal").textContent=money(subtotal);
+    document.getElementById("taxTotal").textContent=money(tax);
+    document.getElementById("grandTotal").textContent=money(subtotal+tax);
+
+    return {subtotal,tax,total:subtotal+tax};
+}
+
+// --------------------------------------------------
+// QUOTATION CREATION AND EDITING
+// --------------------------------------------------
+
+function resetQuotationForm(){
+    document.getElementById("quotationForm").reset();
+    document.getElementById("quotationEditId").value="";
+    document.getElementById("quotationFormTitle").textContent="New Quotation";
+    document.getElementById("quotationSaveButton").textContent="Save Quotation";
+    document.getElementById("quotationLines").innerHTML="";
+    document.getElementById("quotationStart").value=today();
+    addQuotationLine();
+    calculateTotals();
+}
+
+document.getElementById("quotationTemplate").addEventListener("change",e=>{
+    if(e.target.value)useTemplate(e.target.value);
+});
+
+document.getElementById("quotationForm").addEventListener("submit",e=>{
+    e.preventDefault();
+
+    const id=document.getElementById("quotationEditId").value;
+    const start=document.getElementById("quotationStart").value;
+    const expiry=document.getElementById("quotationExpiry").value;
+    const lines=collectLines();
+
+    if(expiry<start){
+        notify("Expiry date cannot be before start date.");
+        return;
+    }
+
+    if(expiry<today()){
+        notify("Quotation expiry date cannot be in the past.");
+        return;
+    }
+
+    if(!lines.length || lines.some(l=>!l.productId||!l.planId||l.quantity<1||l.unitPrice<0||l.taxRate<0||l.taxRate>100)){
+        notify("Please complete every quotation line correctly.");
+        return;
+    }
+
+    for(const line of lines){
+        const plan=getPlan(line.planId);
+        if(!plan || plan.productId!==line.productId){
+            notify("Each plan must match its selected product.");
+            return;
+        }
+    }
+
+    const totals=calculateTotals();
+
+    const existing=getRecord("quotations",id);
+
+    if(existing && existing.status!=="Draft"){
+        notify("Only draft quotations can be edited.");
+        return;
+    }
+
+    const quotation={
+        id:id||uid(),
+        number:existing?.number||number("QUO"),
+        customerName:document.getElementById("customerName").value.trim(),
+        customerEmail:document.getElementById("customerEmail").value.trim(),
+        customerId:document.getElementById("customerId").value.trim(),
+        templateId:document.getElementById("quotationTemplate").value,
+        start,
+        expiry,
+        paymentTerms:document.getElementById("quotationPaymentTerms").value,
+        lines,
+        subtotal:totals.subtotal,
+        tax:totals.tax,
+        total:totals.total,
+        status:existing?.status||"Quotation",
+        createdAt:existing?.createdAt||today()
+    };
+
+    const index=data.quotations.findIndex(q=>q.id===id);
+    if(index>=0)data.quotations[index]=quotation;
+    else data.quotations.push(quotation);
+
+    saveData();
+    resetQuotationForm();
+    notify("Quotation saved successfully.");
+});
+
+function editQuotation(id){
+    const q=getRecord("quotations",id);
+    if(!q)return;
+
+    if(q.status!=="Draft"){
+        notify("Only draft quotations can be edited.");
+        return;
+    }
+
+    document.querySelector('[data-tab="quotations"]').click();
+
+    document.getElementById("quotationEditId").value=q.id;
+    document.getElementById("quotationFormTitle").textContent="Edit Quotation "+q.number;
+    document.getElementById("quotationSaveButton").textContent="Update Quotation";
+    document.getElementById("customerName").value=q.customerName;
+    document.getElementById("customerEmail").value=q.customerEmail;
+    document.getElementById("customerId").value=q.customerId||"";
+    document.getElementById("quotationStart").value=q.start;
+    document.getElementById("quotationExpiry").value=q.expiry;
+    document.getElementById("quotationPaymentTerms").value=q.paymentTerms;
+    document.getElementById("quotationTemplate").value=q.templateId||"";
+
+    document.getElementById("quotationLines").innerHTML="";
+    q.lines.forEach(line=>addQuotationLine(line));
+
+    document.querySelector("#quotations .form-card").scrollIntoView({behavior:"smooth"});
+}
+
+// --------------------------------------------------
+// QUOTATION STATUS AND CONVERSION
+// --------------------------------------------------
+
+function confirmQuotation(id){
+    const q=getRecord("quotations",id);
+    if(!q)return;
+
+    if(q.status!=="Quotation" && q.status!=="Draft"){
+        notify("This quotation cannot be confirmed.");
+        return;
+    }
+
+    if(q.expiry<today()){
+        notify("This quotation has expired.");
+        return;
+    }
+
+    if(!confirm("Confirm this quotation?"))return;
+
+    q.status="Confirmed";
+    saveData();
+    notify("Quotation confirmed. It can now become a subscription.");
+}
+
+function convertToSubscription(id){
+    const q=getRecord("quotations",id);
+    if(!q)return;
+
+    if(q.status!=="Confirmed"){
+        notify("Confirm the quotation before creating a subscription.");
+        return;
+    }
+
+    if(data.subscriptions.some(s=>s.quotationId===q.id)){
+        notify("A subscription already exists for this quotation.");
+        return;
+    }
+
+    const subscription={
+        id:uid(),
+        number:number("SUB"),
+        quotationId:q.id,
+        customerName:q.customerName,
+        customerEmail:q.customerEmail,
+        customerId:q.customerId,
+        lines:q.lines,
+        planIds:q.lines.map(l=>l.planId),
+        start:q.start,
+        expiry:q.expiry,
+        paymentTerms:q.paymentTerms,
+        amount:q.total,
+        status:"Confirmed",
+        createdAt:today()
+    };
+
+    data.subscriptions.push(subscription);
+    q.status="Confirmed";
+
+    saveData();
+    document.querySelector('[data-tab="subscriptions"]').click();
+    notify("Subscription created successfully.");
+}
+
+// --------------------------------------------------
+// QUOTATION TABLE
+// --------------------------------------------------
+
+function renderQuotations(){
+    const qtext=document.getElementById("quotationSearch").value.toLowerCase();
+    const rows=data.quotations.filter(q=>
+        (q.number+" "+q.customerName+" "+q.customerEmail).toLowerCase().includes(qtext)
+    );
+
+    document.getElementById("quotationTable").innerHTML=rows.length?rows.map(q=>`
+        <tr>
+            <td><strong>${escapeHTML(q.number)}</strong></td>
+            <td>${escapeHTML(q.customerName)}<br><span style="color:#94a3b8">${escapeHTML(q.customerEmail)}</span></td>
+            <td>${escapeHTML(q.createdAt)}</td>
+            <td>${escapeHTML(q.expiry)}</td>
+            <td>${money(q.total)}</td>
+            <td><span class="status ${q.status.toLowerCase()}">${escapeHTML(q.status)}</span></td>
+            <td><div class="actions">
+                ${q.status==="Draft"?`<button class="action-btn" onclick="editQuotation('${q.id}')">Edit</button>`:""}
+                ${q.status==="Quotation"||q.status==="Draft"?`<button class="action-btn green" onclick="confirmQuotation('${q.id}')">Confirm</button>`:""}
+                ${q.status==="Confirmed"&&!data.subscriptions.some(s=>s.quotationId===q.id)?`<button class="action-btn green" onclick="convertToSubscription('${q.id}')">Create Subscription</button>`:""}
+                <button class="action-btn" onclick="viewQuotation('${q.id}')">View</button>
+            </div></td>
+        </tr>
+    `).join(""):`<tr><td colspan="7" class="empty">No quotations found.</td></tr>`;
+}
+
+function viewQuotation(id){
+    const q=getRecord("quotations",id);
+    if(!q)return;
+    const lines=q.lines.map(l=>
+        `${l.productName} / ${l.planName} — Qty ${l.quantity} — ${money(l.total)}`
+    ).join("\n");
+
+    alert(
+        "Quotation: "+q.number+
+        "\nCustomer: "+q.customerName+
+        "\nEmail: "+q.customerEmail+
+        "\nStart: "+q.start+
+        "\nExpiry: "+q.expiry+
+        "\nPayment: "+q.paymentTerms+
+        "\n\nItems:\n"+lines+
+        "\n\nSubtotal: "+money(q.subtotal)+
+        "\nTax: "+money(q.tax)+
+        "\nTotal: "+money(q.total)
+    );
+}
+
+// --------------------------------------------------
+// SUBSCRIPTION LIFECYCLE
+// --------------------------------------------------
+
+function subscriptionRules(subscription){
+    return subscription.planIds.map(id=>getPlan(id)).filter(Boolean);
+}
+
+function activateSubscription(id){
+    const s=getRecord("subscriptions",id);
+    if(!s || s.status!=="Confirmed")return;
+
+    if(s.expiry<today()){
+        notify("This subscription has expired.");
+        return;
+    }
+
+    s.status="Active";
+    saveData();
+    notify("Subscription activated.");
+}
+
+function pauseSubscription(id){
+    const s=getRecord("subscriptions",id);
+    if(!s || s.status!=="Active")return;
+
+    const plans=subscriptionRules(s);
+    if(!plans.length || plans.some(p=>!p.pause)){
+        notify("The selected plan does not allow pausing.");
+        return;
+    }
+
+    s.status="Paused";
+    saveData();
+    notify("Subscription paused.");
+}
+
+function resumeSubscription(id){
+    const s=getRecord("subscriptions",id);
+    if(!s || s.status!=="Paused")return;
+    s.status="Active";
+    saveData();
+    notify("Subscription resumed.");
+}
+
+function closeSubscription(id){
+    const s=getRecord("subscriptions",id);
+    if(!s || !["Active","Paused","Confirmed"].includes(s.status))return;
+
+    const plans=subscriptionRules(s);
+    if(plans.some(p=>!p.earlyClose)){
+        notify("Early closure is not allowed by one or more selected plans.");
+        return;
+    }
+
+    if(!confirm("Are you sure you want to close this subscription?"))return;
+
+    s.status="Closed";
+    s.closedAt=today();
+    saveData();
+    notify("Subscription closed.");
+}
+
+function renewSubscription(id){
+    const s=getRecord("subscriptions",id);
+    if(!s || !["Active","Closed"].includes(s.status))return;
+
+    const plans=subscriptionRules(s);
+    if(!plans.length || plans.some(p=>!p.renewal)){
+        notify("Renewal is not allowed by one or more selected plans.");
+        return;
+    }
+
+    if(!confirm("Create a renewed subscription based on this contract?"))return;
+
+    const renewed={
+        ...s,
+        id:uid(),
+        number:number("SUB"),
+        quotationId:null,
+        start:s.expiry,
+        expiry:renewalExpiry(s),
+        status:"Confirmed",
+        createdAt:today(),
+        renewedFrom:s.number
+    };
+
+    data.subscriptions.push(renewed);
+    saveData();
+    notify("Renewal created as a new confirmed subscription.");
+}
+
+function renewalExpiry(s){
+    const firstPlan=getPlan(s.planIds[0]);
+    const cycle=firstPlan?.cycle||"Monthly";
+    const d=new Date((s.expiry||today())+"T00:00:00");
+
+    if(cycle==="Daily")d.setDate(d.getDate()+1);
+    if(cycle==="Weekly")d.setDate(d.getDate()+7);
+    if(cycle==="Monthly")d.setMonth(d.getMonth()+1);
+    if(cycle==="Yearly")d.setFullYear(d.getFullYear()+1);
+
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+
+function renderSubscriptions(){
+    const q=document.getElementById("subscriptionSearch").value.toLowerCase();
+    const rows=data.subscriptions.filter(s=>
+        (s.number+" "+s.customerName+" "+s.customerEmail).toLowerCase().includes(q)
+    );
+
+    document.getElementById("subscriptionTable").innerHTML=rows.length?rows.map(s=>{
+        const planNames=s.lines.map(l=>l.planName).join(", ");
+        let buttons="";
+
+        if(s.status==="Confirmed"){
+            buttons+=`<button class="action-btn green" onclick="activateSubscription('${s.id}')">Activate</button>`;
+        }
+        if(s.status==="Active"){
+            buttons+=`<button class="action-btn" onclick="pauseSubscription('${s.id}')">Pause</button>`;
+        }
+        if(s.status==="Paused"){
+            buttons+=`<button class="action-btn green" onclick="resumeSubscription('${s.id}')">Resume</button>`;
+        }
+        if(["Active","Paused","Confirmed"].includes(s.status)){
+            buttons+=`<button class="action-btn delete" onclick="closeSubscription('${s.id}')">Close</button>`;
+        }
+        if(["Active","Closed"].includes(s.status)){
+            buttons+=`<button class="action-btn" onclick="renewSubscription('${s.id}')">Renew</button>`;
+        }
+
+        return `<tr>
+            <td><strong>${escapeHTML(s.number)}</strong></td>
+            <td>${escapeHTML(s.customerName)}<br><span style="color:#94a3b8">${escapeHTML(s.customerEmail)}</span></td>
+            <td>${escapeHTML(planNames)}</td>
+            <td>${escapeHTML(s.start)}</td>
+            <td>${escapeHTML(s.expiry)}</td>
+            <td>${money(s.amount)}</td>
+            <td><span class="status ${s.status.toLowerCase()}">${escapeHTML(s.status)}</span></td>
+            <td><div class="actions">${buttons}</div></td>
+        </tr>`;
+    }).join(""):`<tr><td colspan="8" class="empty">No subscriptions created yet. Confirm a quotation and convert it into a subscription.</td></tr>`;
+}
+
+// --------------------------------------------------
+// DELETE
+// --------------------------------------------------
+
+function deleteRecord(collection,id){
+    if(!confirm("Are you sure you want to delete this record?"))return;
+
+    data[collection]=data[collection].filter(x=>x.id!==id);
+    saveData();
+    notify("Record deleted.");
+}
+
+// --------------------------------------------------
+// SEARCH
+// --------------------------------------------------
+
+document.getElementById("templateSearch").addEventListener("input",renderTemplates);
+document.getElementById("quotationSearch").addEventListener("input",renderQuotations);
+document.getElementById("subscriptionSearch").addEventListener("input",renderSubscriptions);
+
+// --------------------------------------------------
+// SUMMARY AND RENDER
+// --------------------------------------------------
+
+function renderAll(){
+    document.getElementById("quotationCount").textContent=data.quotations.length;
+    document.getElementById("activeCount").textContent=
+        data.subscriptions.filter(s=>s.status==="Active").length;
+    document.getElementById("pendingCount").textContent=
+        data.quotations.filter(q=>["Draft","Quotation"].includes(q.status)).length;
+
+    const value=data.subscriptions
+        .filter(s=>s.status!=="Closed")
+        .reduce((sum,s)=>sum+Number(s.amount||0),0);
+
+    document.getElementById("subscriptionValue").textContent=money(value);
+
+    renderTemplates();
+    renderQuotations();
+    renderSubscriptions();
+    refreshCatalog();
+}
+
+// INITIAL SETUP
+document.getElementById("quotationStart").value=today();
+addQuotationLine();
+renderAll();
+
+</script>
+</body>
+</html>
