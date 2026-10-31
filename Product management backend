@@ -1,0 +1,256 @@
+const db = require("../config/database");
+
+// ADD PRODUCT
+exports.createProduct = async (req, res) => {
+    try {
+        const { name, product_type, sales_price, cost_price, notes, variants } = req.body;
+
+        if (!name || !product_type || sales_price === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: "Product name, type and sales price are required."
+            });
+        }
+
+        if (!Number.isFinite(Number(sales_price)) || Number(sales_price) < 0 ||
+            (cost_price !== undefined &&
+             (!Number.isFinite(Number(cost_price)) || Number(cost_price) < 0))) {
+            return res.status(400).json({
+                success: false,
+                message: "Prices must be valid non-negative numbers."
+            });
+        }
+
+        if (variants !== undefined &&
+            (!Array.isArray(variants) ||
+             variants.some(v => !v.variant_name ||
+                 !Number.isFinite(Number(v.additional_price)) ||
+                 Number(v.additional_price) < 0))) {
+            return res.status(400).json({
+                success: false,
+                message: "Check the product variant details."
+            });
+        }
+
+        const connection = await db.getConnection();
+
+        try {
+            await connection.beginTransaction();
+
+            const [result] = await connection.execute(
+                `INSERT INTO products
+                (name, product_type, sales_price, cost_price, notes)
+                VALUES (?, ?, ?, ?, ?)`,
+                [
+                    name.trim(),
+                    product_type.trim(),
+                    Number(sales_price),
+                    Number(cost_price || 0),
+                    notes || null
+                ]
+            );
+
+            const productId = result.insertId;
+
+            for (const variant of (variants || [])) {
+                await connection.execute(
+                    `INSERT INTO product_variants
+                    (product_id, variant_name, additional_price)
+                    VALUES (?, ?, ?)`,
+                    [
+                        productId,
+                        variant.variant_name.trim(),
+                        Number(variant.additional_price)
+                    ]
+                );
+            }
+
+            await connection.commit();
+
+            res.status(201).json({
+                success: true,
+                message: "Product created successfully.",
+                productId
+            });
+
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        } finally {
+            connection.release();
+        }
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Unable to create product."
+        });
+    }
+};
+
+// GET ALL PRODUCTS WITH VARIANTS
+exports.getProducts = async (req, res) => {
+    try {
+        const [products] = await db.execute(
+            "SELECT * FROM products ORDER BY id DESC"
+        );
+
+        for (const product of products) {
+            const [variants] = await db.execute(
+                "SELECT * FROM product_variants WHERE product_id = ?",
+                [product.id]
+            );
+
+            product.variants = variants;
+        }
+
+        res.json({
+            success: true,
+            products
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Unable to retrieve products."
+        });
+    }
+};
+
+// UPDATE PRODUCT
+exports.updateProduct = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, product_type, sales_price, cost_price, notes } = req.body;
+
+        if (!name || !product_type ||
+            !Number.isFinite(Number(sales_price)) ||
+            Number(sales_price) < 0 ||
+            (cost_price !== undefined &&
+             (!Number.isFinite(Number(cost_price)) || Number(cost_price) < 0))) {
+            return res.status(400).json({
+                success: false,
+                message: "Provide valid product details."
+            });
+        }
+
+        const [result] = await db.execute(
+            `UPDATE products
+             SET name = ?, product_type = ?, sales_price = ?,
+                 cost_price = ?, notes = ?
+             WHERE id = ?`,
+            [
+                name.trim(),
+                product_type.trim(),
+                Number(sales_price),
+                Number(cost_price || 0),
+                notes || null,
+                id
+            ]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found."
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "Product updated successfully."
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Unable to update product."
+        });
+    }
+};
+
+// ADD VARIANT TO EXISTING PRODUCT
+exports.addVariant = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { variant_name, additional_price } = req.body;
+
+        if (!variant_name ||
+            !Number.isFinite(Number(additional_price)) ||
+            Number(additional_price) < 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Provide a valid variant name and additional price."
+            });
+        }
+
+        const [products] = await db.execute(
+            "SELECT id FROM products WHERE id = ?",
+            [id]
+        );
+
+        if (products.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found."
+            });
+        }
+
+        const [result] = await db.execute(
+            `INSERT INTO product_variants
+             (product_id, variant_name, additional_price)
+             VALUES (?, ?, ?)`,
+            [id, variant_name.trim(), Number(additional_price)]
+        );
+
+        res.status(201).json({
+            success: true,
+            message: "Variant added successfully.",
+            variantId: result.insertId
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Unable to add variant."
+        });
+    }
+};
+
+// ARCHIVE PRODUCT
+exports.archiveProduct = async (req, res) => {
+    try {
+        const [result] = await db.execute(
+            "UPDATE products SET is_active = FALSE WHERE id = ?",
+            [req.params.id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found."
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "Product archived."
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Unable to archive product."
+        });
+    }
+};
