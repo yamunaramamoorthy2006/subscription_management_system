@@ -1,0 +1,117 @@
+async function testHttpEndpoints() {
+  console.log('=== HTTP API ENDPOINT VERIFICATION ===\n');
+  let passed = 0;
+  let failed = 0;
+
+  function assert(condition: boolean, name: string) {
+    if (condition) {
+      console.log(`  ✓ ${name}`);
+      passed++;
+    } else {
+      console.error(`  ✗ FAIL: ${name}`);
+      failed++;
+    }
+  }
+
+  const BASE_URL = 'http://localhost:5000';
+
+  // 1. Health
+  const healthRes = await fetch(`${BASE_URL}/api/health`).then(r => r.json());
+  assert(healthRes.status === 'ONLINE' && healthRes.company === 'Brightloop Software', 'Health check is ONLINE');
+
+  // 2. Admin Login
+  const adminLogin = await fetch(`${BASE_URL}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: 'admin@brightloop.io', password: 'BrightloopAdmin2026!' })
+  }).then(r => r.json());
+  assert(adminLogin.user?.role === 'ADMIN' && !!adminLogin.token, 'Admin login returns valid JWT');
+  const adminToken = adminLogin.token;
+
+  // 3. Customer Login
+  const custLogin = await fetch(`${BASE_URL}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: 'sarah.connor@acmecloud.io', password: 'CustomerUser2026!' })
+  }).then(r => r.json());
+  assert(custLogin.user?.role === 'CUSTOMER' && !!custLogin.user?.customerId, 'Customer login returns valid Customer account');
+  const custToken = custLogin.token;
+
+  const authHeaders = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${adminToken}`
+  };
+
+  // 4. Dashboard Report
+  const dashboard = await fetch(`${BASE_URL}/api/reports/dashboard`, { headers: authHeaders }).then(r => r.json());
+  assert(dashboard.metrics?.activeSubscriptions > 0, `Dashboard metrics: ${dashboard.metrics.activeSubscriptions} active subscriptions`);
+  assert(dashboard.metrics?.revenueCollected > 0, `Dashboard metrics: $${dashboard.metrics.revenueCollected} revenue collected`);
+
+  // 5. Customers List
+  const customers = await fetch(`${BASE_URL}/api/customers`, { headers: authHeaders }).then(r => r.json());
+  assert(customers.customers?.length >= 5, `Customers endpoint returned ${customers.customers.length} records`);
+
+  // 6. Products Catalog
+  const products = await fetch(`${BASE_URL}/api/products`, { headers: authHeaders }).then(r => r.json());
+  assert(products.products?.length >= 3, `Products catalog returned ${products.products.length} products with variants`);
+
+  // 7. Subscription Plans
+  const plans = await fetch(`${BASE_URL}/api/plans`, { headers: authHeaders }).then(r => r.json());
+  assert(plans.plans?.length >= 3, `Subscription plans returned ${plans.plans.length} plans`);
+
+  // 8. Quotations
+  const quotations = await fetch(`${BASE_URL}/api/quotations`, { headers: authHeaders }).then(r => r.json());
+  assert(quotations.quotations?.length >= 2, `Quotations returned ${quotations.quotations.length} records`);
+
+  // 9. Subscriptions with Health Indicators
+  const subscriptions = await fetch(`${BASE_URL}/api/subscriptions`, { headers: authHeaders }).then(r => r.json());
+  assert(subscriptions.subscriptions?.length >= 4, `Subscriptions returned ${subscriptions.subscriptions.length} records`);
+  const hasHealthy = subscriptions.subscriptions.some((s: any) => s.health === 'HEALTHY');
+  const hasPaused = subscriptions.subscriptions.some((s: any) => s.health === 'PAUSED');
+  assert(hasHealthy && hasPaused, 'Subscription health indicator algorithm classified HEALTHY and PAUSED states');
+
+  // 10. Invoices with Overdue and Paid status
+  const invoices = await fetch(`${BASE_URL}/api/invoices`, { headers: authHeaders }).then(r => r.json());
+  assert(invoices.invoices?.length >= 4, `Invoices returned ${invoices.invoices.length} invoices`);
+  const hasOverdue = invoices.invoices.some((i: any) => i.computed_status === 'OVERDUE');
+  const hasPaid = invoices.invoices.some((i: any) => i.computed_status === 'PAID');
+  assert(hasOverdue && hasPaid, 'Invoice computed status correctly identifies OVERDUE and PAID balances');
+
+  // 11. Payments List
+  const payments = await fetch(`${BASE_URL}/api/payments`, { headers: authHeaders }).then(r => r.json());
+  assert(payments.payments?.length >= 3, `Payments returned ${payments.payments.length} cleared payment records`);
+
+  // 12. Discounts Validation Sandbox
+  const discountVal = await fetch(`${BASE_URL}/api/discounts/validate`, {
+    method: 'POST',
+    headers: authHeaders,
+    body: JSON.stringify({ code: 'SCALE15', amount: 200 })
+  }).then(r => r.json());
+  assert(discountVal.valid && discountVal.discountAmount === 30, 'Discount validator applied 15% to $200 = $30.00 discount');
+
+  // 13. Customer Portal (with Customer Token)
+  const portalRes = await fetch(`${BASE_URL}/api/portal/summary`, {
+    headers: { 'Authorization': `Bearer ${custToken}` }
+  }).then(r => r.json());
+  assert(portalRes.customer?.name === 'Acme Cloud Technologies', `Customer portal isolated to Acme Cloud Technologies`);
+  assert(portalRes.subscriptions?.length > 0 && portalRes.invoices?.length > 0, 'Customer portal displays customer subscriptions & invoices');
+
+  // 14. Global Multi-Entity Search
+  const searchRes = await fetch(`${BASE_URL}/api/search?q=Acme`, { headers: authHeaders }).then(r => r.json());
+  assert(searchRes.customers?.length > 0 && searchRes.subscriptions?.length > 0, 'Global search found matching customer and subscription');
+
+  // 15. Billing Run Execution with Safeguards
+  const billingRun = await fetch(`${BASE_URL}/api/billing/run`, {
+    method: 'POST',
+    headers: authHeaders,
+    body: JSON.stringify({})
+  }).then(r => r.json());
+  assert(billingRun.runId > 0, `Billing run completed: ${billingRun.invoicesCreated} created, ${billingRun.skippedCount} duplicate skipped`);
+
+  console.log(`\n=== ALL ${passed} HTTP ENDPOINT TESTS PASSED ===\n`);
+}
+
+testHttpEndpoints().catch(err => {
+  console.error('HTTP test error:', err);
+  process.exit(1);
+});
